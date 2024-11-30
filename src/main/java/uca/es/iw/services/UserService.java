@@ -107,4 +107,33 @@ public class UserService {
             throw new IllegalArgumentException("Debe seleccionar un rol válido.");
         }
     }
+    public User updateUserData(User user) {
+        // Verificar si el usuario existe en la base de datos
+        Optional<User> existingUserOptional = repository.findById(user.getId());
+        if (existingUserOptional.isPresent()) {
+            User existingUser = existingUserOptional.get();
+
+            // Actualizar nombre de usuario y nombre completo
+            if (user.getUsername() != null && !user.getUsername().equals(existingUser.getUsername())) {
+                existingUser.setUsername(user.getUsername());
+            }
+            existingUser.setName(user.getName());
+
+            // Actualizar la contraseña solo si fue modificada
+            if (user.getHashedPassword() != null && !user.getHashedPassword().equals(existingUser.getHashedPassword())) {
+                existingUser.setHashedPassword(user.getHashedPassword());
+
+            }
+
+            // Actualizar la imagen de perfil si existe
+            if (user.getProfilePicture() != null && user.getProfilePicture().length > 0) {
+                existingUser.setProfilePicture(user.getProfilePicture());
+            }
+
+            // Guardar el usuario actualizado en la base de datos
+            return repository.save(existingUser);
+        } else {
+            throw new IllegalArgumentException("El usuario no existe.");
+        }
+    }
 }
