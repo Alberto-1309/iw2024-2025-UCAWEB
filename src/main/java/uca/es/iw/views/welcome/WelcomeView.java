@@ -6,12 +6,14 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @PageTitle("Bienvenido")
 @Route("")
+@Menu(order = 0, icon = "line-awesome/svg/user.svg")
 @AnonymousAllowed
 public class WelcomeView extends VerticalLayout {
 

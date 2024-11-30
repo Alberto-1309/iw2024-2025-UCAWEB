@@ -1,7 +1,11 @@
 package uca.es.iw.views.login;
 
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -14,7 +18,7 @@ import uca.es.iw.security.AuthenticatedUser;
 @AnonymousAllowed
 @PageTitle("Login")
 @Route(value = "login")
-public class LoginView extends LoginOverlay implements BeforeEnterObserver {
+/*public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 
     private final AuthenticatedUser authenticatedUser;
 
@@ -24,8 +28,7 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 
         LoginI18n i18n = LoginI18n.createDefault();
         i18n.setHeader(new LoginI18n.Header());
-        i18n.getHeader().setTitle("IW");
-        i18n.getHeader().setDescription("Login using user/user or admin/admin");
+        i18n.getHeader().setTitle("Inicio de sesión");
         i18n.setAdditionalInformation(null);
         setI18n(i18n);
 
@@ -35,12 +38,43 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-       /* if (authenticatedUser.get().isPresent()) {
+        if (authenticatedUser.get().isPresent()) {
             // Already logged in
             setOpened(false);
             event.forwardTo("");
         }
-*/
+
         setError(event.getLocation().getQueryParameters().getParameters().containsKey("error"));
     }
+}*/
+
+public class LoginView extends VerticalLayout implements BeforeEnterObserver {
+
+    private final AuthenticatedUser authenticatedUser;
+
+    public LoginView(AuthenticatedUser authenticatedUser) {
+        this.authenticatedUser = authenticatedUser;
+
+        setSizeFull();
+        setAlignItems(Alignment.CENTER);
+        setJustifyContentMode(JustifyContentMode.CENTER);
+        var login = new LoginForm();
+        login.setAction("login");
+        login.setForgotPasswordButtonVisible(false);
+        add(
+                login,
+                new Anchor("register", "Register")
+        );
+
+
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if (authenticatedUser.get().isPresent()) {
+            // Already logged in
+            event.forwardTo("");
+        }
+    }
+
 }
