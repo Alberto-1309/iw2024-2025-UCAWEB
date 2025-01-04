@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import uca.es.iw.data.Proyecto;
 import uca.es.iw.data.ProyectoRepository;
+import uca.es.iw.data.User;
+import uca.es.iw.data.UserRepository;
 
 import java.util.List;
 
@@ -25,15 +27,17 @@ import java.util.List;
 public class PromotorView extends VerticalLayout {
 
     private final ProyectoRepository proyectoRepository;
+    private final UserRepository userRepository;
 
     private Grid<Proyecto> grid = new Grid<>(Proyecto.class);
 
     @Autowired
-    public PromotorView(ProyectoRepository proyectoRepository) {
+    public PromotorView(ProyectoRepository proyectoRepository, UserRepository userRepository) {
         this.proyectoRepository = proyectoRepository;
+        this.userRepository = userRepository;
 
         // Obtener el nombre del usuario autenticado
-        String promotor = getAuthenticatedUsername();
+        String promotor = getAuthenticatedName();
 
         // Configurar Grid
         grid.setColumns("titulo", "nombreCorto", "unidadSolicitante");
@@ -56,6 +60,13 @@ public class PromotorView extends VerticalLayout {
         }
     }
 
+    private String getAuthenticatedName() {
+        String username = getAuthenticatedUsername();
+        return userRepository.findByUsername(username)
+                .map(User::getName)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
     private HorizontalLayout createActionButtons(Proyecto proyecto) {
         Button avalarButton = new Button("Avalar", event -> gestionarProyecto(proyecto, true));
         Button rechazarButton = new Button("No Avalar", event -> gestionarProyecto(proyecto, false));
@@ -64,13 +75,20 @@ public class PromotorView extends VerticalLayout {
     }
 
     private void gestionarProyecto(Proyecto proyecto, boolean avalar) {
+        // Actualizar el estado del proyecto
         if (avalar) {
             proyecto.setEstado("AVALADO");
         } else {
             proyecto.setEstado("NO_AVALADO");
         }
         proyectoRepository.save(proyecto);
+
+        // Actualizar la lista de ítems en el Grid
+        List<Proyecto> proyectosActualizados = proyectoRepository.findByPromotorAndEstado(getAuthenticatedUsername(), "PENDIENTE");
+        grid.setItems(proyectosActualizados);
+
+        // Mostrar notificación
         Notification.show("Proyecto actualizado: " + proyecto.getTitulo());
-        grid.getDataProvider().refreshAll();
     }
+
 }
