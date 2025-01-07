@@ -8,7 +8,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.router.Menu;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
@@ -38,7 +37,7 @@ public class WelcomeView extends VerticalLayout {
         logo.setWidth("150px");
 
         // Título principal
-        H2 title = new H2(i18nProvider.getTranslation("welcome.title-principal", getLocale()));
+        H2 title = new H2(i18nProvider.getTranslation("welcome.main_title", getLocale()));
         title.getStyle().set("margin-top", "0");
 
         // Párrafo descriptivo

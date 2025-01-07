@@ -26,16 +26,22 @@ public class ProyectoService {
 
     private final AuthenticatedUser authenticatedUser;
 
+    private final ConvocatoriaRepository convocatoriaRepository; // Agregado
+
     private Long currentUserId;
 
-    public ProyectoService(ProyectoRepository proyectoRepository, UserRepository userRepository, PonderacionesRepository ponderacionesRepository, AuthenticatedUser authenticatedUser) {
+    public ProyectoService(ProyectoRepository proyectoRepository, UserRepository userRepository,
+                           PonderacionesRepository ponderacionesRepository,
+                           ConvocatoriaRepository convocatoriaRepository,  // Agregado
+                           AuthenticatedUser authenticatedUser) {
         this.proyectoRepository = proyectoRepository;
         this.userRepository = userRepository;
         this.ponderacionesRepository = ponderacionesRepository;
         this.authenticatedUser = authenticatedUser;
+        this.convocatoriaRepository = convocatoriaRepository; // Initialize convocatoriaRepository
     }
 
-    public Proyecto guardarProyecto(String titulo, String nombrecorto, byte[] memoria, String nombresolicitante, String correo, String unidad, String select, int importancia, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues, byte[] especificaciones, byte[] presupuesto) {
+    public Proyecto guardarProyecto(String titulo, String nombrecorto, byte[] memoria, String nombresolicitante, String correo, String unidad, String select, int importancia, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues, byte[] especificaciones, byte[] presupuesto, Convocatoria convocatoria) {
         validateProjectData(titulo, nombrecorto, memoria, nombresolicitante, correo, unidad, select, importancia, interesados, financiacion, alcance, fechaObjetivo, normativa, selectedValues);
         String estado = "PENDIENTE";
 
@@ -69,7 +75,7 @@ public class ProyectoService {
         proyecto.setCreadoId(currentUserId);
         proyecto.setCalificado(false);
         proyecto.setArchivado(false);
-
+        proyecto.setConvocatoria(convocatoria);
         proyecto.setAoe1(AOE1);
         proyecto.setAoe2(AOE2);
         proyecto.setAoe3(AOE3);
@@ -369,5 +375,10 @@ public class ProyectoService {
     public Proyecto findById(long id) {
         return proyectoRepository.findById(id).orElseGet(Proyecto::new);
     }
-
+    // Método para obtener la convocatoria activa
+    public Convocatoria getConvocatoriaActual() {
+        LocalDate hoy = LocalDate.now();
+        return convocatoriaRepository.findByFechaAperturaBeforeAndFechaCierreAfter(hoy, hoy)
+                .orElseThrow(() -> new IllegalArgumentException("No hay convocatorias activas actualmente."));
+    }
 }

@@ -322,4 +322,14 @@ public class UserService {
 
         emailService.sendEmail(user.getEmail(), subject, body);
     }
+    public void deletePersonalData(User user) {
+        user.setName("");
+        user.setProfilePicture(null);
+        user.setEmail("");
+        repository.save(user);
+    }
+    public List<User> getAllUsers() {
+        return repository.findAll(); // Recupera todos los usuarios de la base de datos
+    }
+
 }
