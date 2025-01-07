@@ -7,7 +7,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
+
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,11 +19,12 @@ import uca.es.iw.data.Proyecto;
 import uca.es.iw.data.ProyectoRepository;
 import uca.es.iw.data.User;
 import uca.es.iw.data.UserRepository;
+import uca.es.iw.views.project.ProjectView;
 
 import java.util.List;
 
-@Route("proyectos/promotor") // Ruta específica para los proyectos del promotor
-@PageTitle("Proyectos Pendientes") // Título de la página
+@Route("avalar-proyectos/:proyectoID?/:action?(edit)") // Ruta específica para los proyectos del promotor
+@PageTitle("Proyectos Pendientess") // Título de la página
 @Menu(order = 4, icon = "line-awesome/svg/file.svg") // Menú (debe estar configurado en un layout general)
 @RolesAllowed("PROMOTOR")
 
@@ -40,7 +44,9 @@ public class PromotorView extends VerticalLayout {
         String promotor = getAuthenticatedName();
 
         // Configurar Grid
-        grid.setColumns("titulo", "nombreCorto", "unidadSolicitante");
+        grid.addComponentColumn(this::createProjectLink).setHeader("Título");
+        grid.addColumn(Proyecto::getNombreCorto).setHeader("Nombre Corto");
+        grid.addColumn(Proyecto::getUnidadSolicitante).setHeader("Unidad Solicitante");
         grid.addComponentColumn(this::createActionButtons).setHeader("Acciones");
 
         // Cargar proyectos pendientes asignados al promotor
@@ -50,6 +56,13 @@ public class PromotorView extends VerticalLayout {
         // Añadir el grid al layout
         add(grid);
     }
+
+    private RouterLink createProjectLink(Proyecto proyecto) {
+    RouterLink link = new RouterLink(proyecto.getTitulo(), ProjectView.class);
+    link.setQueryParameters(QueryParameters.simple(java.util.Map.of("proyectoID", String.valueOf(proyecto.getId()))));
+    return link;
+    }
+
 
     private String getAuthenticatedUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -83,9 +96,7 @@ public class PromotorView extends VerticalLayout {
         }
         proyectoRepository.save(proyecto);
 
-        // Actualizar la lista de ítems en el Grid
-        List<Proyecto> proyectosActualizados = proyectoRepository.findByPromotorAndEstado(getAuthenticatedUsername(), "PENDIENTE");
-        grid.setItems(proyectosActualizados);
+        grid.getListDataView().removeItem(proyecto);
 
         // Mostrar notificación
         Notification.show("Proyecto actualizado: " + proyecto.getTitulo());
