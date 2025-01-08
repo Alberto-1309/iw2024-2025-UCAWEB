@@ -113,8 +113,21 @@ public class Proyecto {
     @Column(name = "archivado", nullable = false, columnDefinition="BOOLEAN DEFAULT false")
     private Boolean archivado;
 
-    // Getters y setters para cada atributo
+    // Relación con Convocatoria
+    @ManyToOne
+    @JoinColumn(name = "convocatoria_id", nullable = false)
+    private Convocatoria convocatoria;
 
+    // Getters y setters para Convocatoria
+    public Convocatoria getConvocatoria() {
+        return convocatoria;
+    }
+
+    public void setConvocatoria(Convocatoria convocatoria) {
+        this.convocatoria = convocatoria;
+    }
+
+    // Getters y setters restantes
     public Long getId() {
         return Id_proyecto;
     }

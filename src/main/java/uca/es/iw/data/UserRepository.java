@@ -23,4 +23,5 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     WHERE ur_promotor.roles = 'PROMOTOR' AND ur_admin.user_id IS NULL
     """, nativeQuery = true)
     List<String> findPromotor();
+
 }

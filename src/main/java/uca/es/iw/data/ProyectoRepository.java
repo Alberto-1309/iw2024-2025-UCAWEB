@@ -26,6 +26,6 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long>, JpaSp
 
     Optional<Proyecto> findById(long id);
 
-
+    List<Proyecto> findByCreadoId(Long creadoId);
 
 }

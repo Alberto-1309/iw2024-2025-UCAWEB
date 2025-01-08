@@ -26,6 +26,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
+import uca.es.iw.data.Convocatoria;
 import uca.es.iw.services.ProyectoService;
 
 
@@ -266,15 +267,32 @@ public class NewProjectView extends Composite<VerticalLayout> {
 
     private void saveProject(String titulo, String nombrecorto, String nombresolicitante, String correo, String unidad, String select, int importancia, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, Object checkboxGroup) {
 
-        List<String> checkboxGroupList = new ArrayList<>();
-        checkboxGroupList.addAll(new ArrayList<>( (Set<String>) checkboxGroup ));
-
-
-        //String selectedValue = select.label();
+        List<String> checkboxGroupList = new ArrayList<>(new ArrayList<>((Set<String>) checkboxGroup));
 
         try {
-            proyectoService.guardarProyecto(titulo, nombrecorto, memoriaData, nombresolicitante, correo, unidad, select, importancia, interesados, financiacion, alcance, fechaObjetivo, normativa, checkboxGroupList, especificacionesData, presupuestoData);
-            Notification.show("Poryecto guardado con éxito.", 3000, Notification.Position.MIDDLE);
+            // Obtén la convocatoria actual
+            Convocatoria convocatoriaActual = proyectoService.getConvocatoriaActual();
+
+            proyectoService.guardarProyecto(
+                    titulo,
+                    nombrecorto,
+                    memoriaData,
+                    nombresolicitante,
+                    correo,
+                    unidad,
+                    select,
+                    importancia,
+                    interesados,
+                    financiacion,
+                    alcance,
+                    fechaObjetivo,
+                    normativa,
+                    checkboxGroupList,
+                    especificacionesData,
+                    presupuestoData,
+                    convocatoriaActual
+            );
+            Notification.show("Proyecto guardado con éxito.", 3000, Notification.Position.MIDDLE);
             UI.getCurrent().navigate("");
 
         } catch (IllegalArgumentException e) {
