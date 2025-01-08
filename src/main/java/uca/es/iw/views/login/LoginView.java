@@ -6,7 +6,6 @@ import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -28,7 +27,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         var login = new LoginForm();
         login.setAction("login");
         login.setForgotPasswordButtonVisible(false);
-        login.setI18n(createLoginI18n()); // Configuración de traducciones
+        login.setI18n(createLoginI18n());
         add(
                 login,
                 new Anchor("register", getTranslation("login.register")) // Traducción del enlace de registro
@@ -47,28 +46,25 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         var i18n = LoginI18n.createDefault();
         var locale = VaadinSession.getCurrent().getLocale();
 
-        // Initialize and configure the header
         var header = new LoginI18n.Header();
         header.setTitle(getTranslation("login.title", locale));
         header.setDescription(getTranslation("login.description", locale));
         i18n.setHeader(header);
 
-        // Configure the form fields
         var form = new LoginI18n.Form();
         form.setTitle(getTranslation("login.title", locale));
         form.setUsername(getTranslation("login.username", locale));
         form.setPassword(getTranslation("login.password", locale));
         form.setSubmit(getTranslation("login.submit", locale));
-        form.setForgotPassword(getTranslation("login.forgotPassword", locale));
+        form.setForgotPassword(getTranslation("login.forgot_password", locale));
         i18n.setForm(form);
 
-        // Configure the error message
         var errorMessage = new LoginI18n.ErrorMessage();
         errorMessage.setTitle(getTranslation("login.error.title", locale));
         errorMessage.setMessage(getTranslation("login.error.message", locale));
         i18n.setErrorMessage(errorMessage);
 
-        i18n.setAdditionalInformation(null); // Remove additional information if not needed
+        i18n.setAdditionalInformation(null);
 
         return i18n;
     }
