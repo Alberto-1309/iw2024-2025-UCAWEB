@@ -17,6 +17,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +30,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @RolesAllowed("ADMIN")
-@PageTitle("Editar usuario")
-@Route(value = "modify-user/:userID")
+@Route(value = "modify-user/:userID", layout = uca.es.iw.views.MainLayout.class)
 public class ModifyUserView extends Composite<VerticalLayout> implements BeforeEnterObserver {
 
     private final UserService userService;
+    private final I18NProvider i18nProvider;
 
     private Long userId; // Para almacenar el ID del usuario a modificar
     private Avatar avatar;
@@ -46,60 +47,67 @@ public class ModifyUserView extends Composite<VerticalLayout> implements BeforeE
     private EmailField emailField;
 
     @Autowired
-    public ModifyUserView(UserService userService) {
+    public ModifyUserView(UserService userService, I18NProvider i18nProvider) {
         this.userService = userService;
+        this.i18nProvider = i18nProvider;
 
         VerticalLayout layoutColumn2 = new VerticalLayout();
-        H3 h3 = new H3("Modificar información del usuario");
+        H3 h3 = new H3(i18nProvider.getTranslation("modify_user.title", getLocale()));
         HorizontalLayout layoutRow = new HorizontalLayout();
 
         // Formulario
         FormLayout formLayout = new FormLayout();
-        nameField = new TextField("Nombre");
-        usernameField = new TextField("Nombre de usuario");
-        passwordField = new PasswordField("Nueva contraseña (opcional)");
-        roleComboBox = new ComboBox<>("Tipo de usuario");
-        emailField = new EmailField("Email");
+        nameField = new TextField(i18nProvider.getTranslation("modify_user.name", getLocale()));
+        usernameField = new TextField(i18nProvider.getTranslation("modify_user.username", getLocale()));
+        passwordField = new PasswordField(i18nProvider.getTranslation("modify_user.password", getLocale()));
+        roleComboBox = new ComboBox<>(i18nProvider.getTranslation("modify_user.role", getLocale()));
+        emailField = new EmailField(i18nProvider.getTranslation("modify_user.email", getLocale()));
 
-        roleComboBox.setItems("USER", "ADMIN", "OTP", "CIO", "PROMOTOR");
-        roleComboBox.setPlaceholder("Seleccione un rol");
+        roleComboBox.setItems(
+                i18nProvider.getTranslation("modify_user.role.user", getLocale()),
+                i18nProvider.getTranslation("modify_user.role.admin", getLocale()),
+                i18nProvider.getTranslation("modify_user.role.otp", getLocale()),
+                i18nProvider.getTranslation("modify_user.role.cio", getLocale()),
+                i18nProvider.getTranslation("modify_user.role.promotor", getLocale())
+        );
+        roleComboBox.setPlaceholder(i18nProvider.getTranslation("modify_user.role_placeholder", getLocale()));
 
         // Avatar
         avatar = new Avatar();
-        avatar.setName("Vista previa");
+        avatar.setName(i18nProvider.getTranslation("modify_user.avatar_preview", getLocale()));
 
         // Componente de subida de imágenes
         Upload upload = getUpload();
 
         // Botón para guardar
-        Button saveButton = new Button("Actualizar usuario");
+        Button saveButton = new Button(i18nProvider.getTranslation("modify_user.save", getLocale()));
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         saveButton.addClickListener(event -> saveUser());
 
-        Button deleteButton = new Button("Borrar usuario");
+        Button deleteButton = new Button(i18nProvider.getTranslation("modify_user.clear_button", getLocale()));
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
         // Crear el diálogo de confirmación
         Dialog confirmDialog = new Dialog();
-        confirmDialog.setHeaderTitle("Confirmar eliminación");
+        confirmDialog.setHeaderTitle(i18nProvider.getTranslation("modify_user.title", getLocale()));
 
         // Mensaje en el diálogo
         Div message = new Div();
-        message.setText("¿Estás seguro de que deseas eliminar este usuario?");
+        message.setText(i18nProvider.getTranslation("modify_user.message", getLocale()));
         confirmDialog.add(message);
 
         // Botón "Cancelar"
-        Button cancelButton = new Button("Cancelar", e -> confirmDialog.close());
+        Button cancelButton = new Button(i18nProvider.getTranslation("modify_user.cancel_button", getLocale()), e -> confirmDialog.close());
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         // Botón "Eliminar"
-        Button confirmButton = new Button("Eliminar", e -> {
+        Button confirmButton = new Button(i18nProvider.getTranslation("modify_user.confirm_button", getLocale()), e -> {
             try {
                 userService.delete(userId); // Llama al método de eliminación
-                Notification.show("Usuario eliminado con éxito.", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("modify_user.success_notification", getLocale()), 3000, Notification.Position.MIDDLE);
                 UI.getCurrent().navigate("search-users");
             } catch (Exception ex) {
-                Notification.show("Error al eliminar el usuario: " + ex.getMessage(), 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("modify_user.error_notification", getLocale()) + ex.getMessage(), 3000, Notification.Position.MIDDLE);
             } finally {
                 confirmDialog.close();
             }
@@ -137,12 +145,12 @@ public class ModifyUserView extends Composite<VerticalLayout> implements BeforeE
                 userService.get(userId).ifPresentOrElse(
                         this::populateForm,
                         () -> {
-                            Notification.show("Usuario no encontrado.", 3000, Notification.Position.MIDDLE);
+                            Notification.show(i18nProvider.getTranslation("modify_user.user_not_found", getLocale()), 3000, Notification.Position.MIDDLE);
                             event.forwardTo("search-users"); // Redirige si el usuario no existe
                         }
                 );
             } catch (NumberFormatException e) {
-                Notification.show("ID de usuario inválido.", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("modify_user.invalid_user_id", getLocale()), 3000, Notification.Position.MIDDLE);
                 event.forwardTo("search-users");
             }
         }
@@ -159,9 +167,9 @@ public class ModifyUserView extends Composite<VerticalLayout> implements BeforeE
                 profilePictureData = buffer.getInputStream().readAllBytes();
                 avatar.setImageResource(new StreamResource(event.getFileName(),
                         () -> new ByteArrayInputStream(profilePictureData)));
-                Notification.show("Imagen cargada correctamente", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("modify_user.success", getLocale()), 3000, Notification.Position.MIDDLE);
             } catch (IOException e) {
-                Notification.show("Error al cargar la imagen", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("modify_user.error", getLocale()), 3000, Notification.Position.MIDDLE);
             }
         });
 
@@ -196,7 +204,7 @@ public class ModifyUserView extends Composite<VerticalLayout> implements BeforeE
 
     private void saveUser() {
         if (nameField.getValue().isEmpty() || usernameField.getValue().isEmpty() || emailField.getValue().isEmpty()) {
-            Notification.show("Por favor, complete todos los campos obligatorios.", 3000, Notification.Position.MIDDLE);
+            Notification.show(i18nProvider.getTranslation("modify_user.missing_fields", getLocale()), 3000, Notification.Position.MIDDLE);
             return;
         }
 
@@ -210,11 +218,11 @@ public class ModifyUserView extends Composite<VerticalLayout> implements BeforeE
                     profilePictureData,
                     roleComboBox.getValue()
             );
-            Notification.show("Usuario actualizado con éxito.", 3000, Notification.Position.MIDDLE);
+            Notification.show(i18nProvider.getTranslation("modify_user.success", getLocale()), 3000, Notification.Position.MIDDLE);
         } catch (IllegalArgumentException e) {
             Notification.show(e.getMessage(), 3000, Notification.Position.MIDDLE);
         } catch (Exception e) {
-            Notification.show("Error al actualizar el usuario: " + e.getMessage(), 3000, Notification.Position.MIDDLE);
+            Notification.show(i18nProvider.getTranslation("modify_user.error", getLocale()) + e.getMessage(), 3000, Notification.Position.MIDDLE);
         }
         //volver a la vista de búsqueda de usuarios
         UI.getCurrent().navigate("search-users");

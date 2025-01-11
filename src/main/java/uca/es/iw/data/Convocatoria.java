@@ -16,9 +16,6 @@ public class Convocatoria {
     private LocalDate fechaApertura;
     private LocalDate fechaCierre;
 
-    private double presupuestoTotal;
-    private int cupoRecursosHumanos;
-
     // Getters y Setters
     public Long getId() {
         return id;
@@ -58,21 +55,5 @@ public class Convocatoria {
 
     public void setFechaCierre(LocalDate fechaCierre) {
         this.fechaCierre = fechaCierre;
-    }
-
-    public double getPresupuestoTotal() {
-        return presupuestoTotal;
-    }
-
-    public void setPresupuestoTotal(double presupuestoTotal) {
-        this.presupuestoTotal = presupuestoTotal;
-    }
-
-    public int getCupoRecursosHumanos() {
-        return cupoRecursosHumanos;
-    }
-
-    public void setCupoRecursosHumanos(int cupoRecursosHumanos) {
-        this.cupoRecursosHumanos = cupoRecursosHumanos;
     }
 }

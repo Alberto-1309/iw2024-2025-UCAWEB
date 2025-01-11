@@ -28,6 +28,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
 import uca.es.iw.data.Convocatoria;
 import uca.es.iw.services.ProyectoService;
+import com.vaadin.flow.i18n.I18NProvider;
 
 
 import java.io.IOException;
@@ -37,8 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-@PageTitle("Solicitar nuevo proyecto")
-@Route("new-proyect-form")
+@Route(value = "new-proyect-form", layout = uca.es.iw.views.MainLayout.class)
 @Menu(order = 1, icon = "line-awesome/svg/user.svg")
 @RolesAllowed("USER")
 public class NewProjectView extends Composite<VerticalLayout> {
@@ -47,12 +47,12 @@ public class NewProjectView extends Composite<VerticalLayout> {
     private byte[] memoriaData;
     private byte[] especificacionesData;
     private byte[] presupuestoData;
+    private final I18NProvider i18nProvider;
 
 
-
-    public NewProjectView(ProyectoService proyectoService) {
+    public NewProjectView(ProyectoService proyectoService,  I18NProvider i18nProvider) {
         this.proyectoService = proyectoService;
-
+        this.i18nProvider = i18nProvider;
         VerticalLayout layoutColumn2 = new VerticalLayout();
         TextField titulo = new TextField();
         TextField nombrecorto = new TextField();
@@ -105,89 +105,83 @@ public class NewProjectView extends Composite<VerticalLayout> {
         layoutColumn2.setWidth("100%");
         layoutColumn2.setMaxWidth("800px");
         layoutColumn2.setHeight("min-content");
-        titulo.setLabel("Título del proyecto: *");
+        titulo.setLabel(i18nProvider.getTranslation("new_project.title", getLocale()));
         titulo.setWidth("600px");
-        nombrecorto.setLabel("Nombre corto: *");
+        nombrecorto.setLabel(i18nProvider.getTranslation("new_project.short_name", getLocale()));
         nombrecorto.setWidth("600px");
-        textSmall11.setText(
-                "Memoria del proyecto: *");
+        textSmall11.setText(i18nProvider.getTranslation("new_project.project_memory", getLocale()));
         textSmall11.setWidth("100%");
         textSmall11.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-        h2.setText("Información del solicitante");
+        h2.setText(i18nProvider.getTranslation("new_project.requester_info", getLocale()));
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h2);
         h2.setWidth("max-content");
-        nombresolicitante.setLabel("Nombre del solicitante: *");
+        nombresolicitante.setLabel(i18nProvider.getTranslation("new_project.requester_name", getLocale()));
         nombresolicitante.setWidth("600px");
-        textMedium.setText("Tendrá la condición de solicitante el responsable de cualquier área, unidad o centro.");
+        textMedium.setText(i18nProvider.getTranslation("new_project.requester_info_description", getLocale()));
         textMedium.setWidth("100%");
         textMedium.getStyle().set("font-size", "var(--lumo-font-size-m)");
-        correo.setLabel("Correo electrónico del solicitante: *");
+        correo.setLabel(i18nProvider.getTranslation("new_project.requester_email", getLocale()));
         correo.setWidth("600px");
-        unidad.setLabel("Unidad del solicitante: *");
+        unidad.setLabel(i18nProvider.getTranslation("new_project.requester_unit", getLocale()));
         unidad.setWidth("600px");
-        h22.setText("Información del promotor");
+        h22.setText(i18nProvider.getTranslation("new_project.promoter_info", getLocale()));
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h22);
         h22.setWidth("max-content");
-        select.setLabel("Promotor: *");
+        select.setLabel(i18nProvider.getTranslation("new_project.promoter", getLocale()));
         select.setWidth("300px");
         proyectoService.setSelectSponsors(select);
-        importancia.setLabel("Importancia para el promotor (0-5): *");
+        importancia.setLabel(i18nProvider.getTranslation("new_project.promoter_importance", getLocale()));
         importancia.setWidth("300px");
-        h23.setText("Justificación del proyecto");
+        h23.setText(i18nProvider.getTranslation("new_project.project_justification", getLocale()));
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h23);
         h23.setWidth("max-content");
-        checkboxGroup.setLabel("Alineamiento con los objetivos estratégicos: *");
+        checkboxGroup.setLabel(i18nProvider.getTranslation("new_project.alignment_with_strategic_goals", getLocale()));
         checkboxGroup.setWidth("600px");
-        checkboxGroup.setItems("Innovar, rediseñar y atualizar nuestra oferta formativa para adaptarla a las necesidades sociales y económicas de nuestro entorno.",
-                "Conseguir los niveles más altos de calidad en nuestra oferta formativa propia y reglada.",
-                "Aumentar significativamente nuestro posicidonamiento en investigación y transferir de forma relevante y útil nuestra investigación a nuestro tejido social y productivo.",
-                "Consolidar un modelo de gobierno sostenible y socialmente responsable.",
-                "Conseguir que la transparencia sea un valor distintivo y relevante en la UCA.",
-                "Generar valor compartido con la Comunidad Universitaria.",
-                "Reforzar la importancia del papel de la UCA en la sociedad.");
+        checkboxGroup.setItems(i18nProvider.getTranslation("new_project.checkbox_item_1", getLocale()),
+                i18nProvider.getTranslation("new_project.checkbox_item_2", getLocale()),
+                i18nProvider.getTranslation("new_project.checkbox_item_3", getLocale()),
+                i18nProvider.getTranslation("new_project.checkbox_item_4", getLocale()),
+                i18nProvider.getTranslation("new_project.checkbox_item_5", getLocale()),
+                i18nProvider.getTranslation("new_project.checkbox_item_6", getLocale()),
+                i18nProvider.getTranslation("new_project.checkbox_item_7", getLocale()));
         checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 
 
-        textSmall.setText(
-                "Su solicitud debe estar alineada con, al menos, uno de los anteriores objetivos estratégicos.");
+        textSmall.setText(i18nProvider.getTranslation("new_project.alignment_explanation", getLocale()));
         textSmall.setWidth("100%");
         textSmall.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-        alcance.setLabel("Alcance: *");
+        alcance.setLabel(i18nProvider.getTranslation("new_project.scope", getLocale()));
         alcance.setWidth("600px");
-        textSmall2.setText(
-                "Total de personas de las diferentes áreas, unidades, centros, departamentos o campus que se beneficiarán de la implantación del proyecto");
+        textSmall2.setText(i18nProvider.getTranslation("new_project.scope_description", getLocale()));
         textSmall2.setWidth("100%");
         textSmall2.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-        fechaObjetivo.setLabel("Fecha requerida de puesta en marcha de la solución TI:");
+        fechaObjetivo.setLabel(i18nProvider.getTranslation("new_project.target_date", getLocale()));
         fechaObjetivo.setWidth("380px");
-        textSmall3.setText(
-                "Solo rellenar la fecha límite para la puesta en marcha en el caso de que su motivación sea por obligado cumplimiento de normativa.");
+        textSmall3.setText(i18nProvider.getTranslation("new_project.target_date_description", getLocale()));
         textSmall3.setWidth("380px");
         textSmall3.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-        normativa.setLabel("Normativa de aplicación:");
+        normativa.setLabel(i18nProvider.getTranslation("new_project.applicable_regulations", getLocale()));
         normativa.setWidth("600px");
-        textSmall4.setText(
-                "Solo rellenar la normativa de aplicación en el caso de que su motivación sea por obligado cumplimiento de normativa.");
+        textSmall4.setText(i18nProvider.getTranslation("new_project.regulations_description", getLocale()));
         textSmall4.setWidth("100%");
         textSmall4.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-        h24.setText("Información de los interesados");
+        h24.setText(i18nProvider.getTranslation("new_project.interested_parties_info", getLocale()));
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h24);
         h24.setWidth("max-content");
-        interesados.setLabel("Interesados: *");
+        interesados.setLabel(i18nProvider.getTranslation("new_project.interested_parties", getLocale()));
         interesados.setWidth("600px");
-        financiacion.setLabel("Financiación: *");
+        financiacion.setLabel(i18nProvider.getTranslation("new_project.financing", getLocale()));
         financiacion.setWidth("250px");
-        textSmall10.setText(
-                "Financiación que puede ser aportada por los interesados de cara a la ejecución del proyecto.");
+        textSmall10.setText(i18nProvider.getTranslation("new_project.financing_description", getLocale()));
         textSmall10.setWidth("100%");
         textSmall10.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-        textSmall5.setText("Especificaciones técnicas: ");
+        textSmall5.setText(i18nProvider.getTranslation("new_project.technical_specifications", getLocale()));
         textSmall5.setWidth("100%");
         textSmall5.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-        textSmall6.setText("Presupuesto(s): ");
+        textSmall6.setText(i18nProvider.getTranslation("new_project.budget", getLocale()));
         textSmall6.setWidth("100%");
         textSmall6.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-        h25.setText("Documentación adicional");
+        h25.setText(i18nProvider.getTranslation("new_project.additional_documents", getLocale()));
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h25);
         h25.setWidth("max-content");
         layoutRow.setWidthFull();
@@ -195,7 +189,7 @@ public class NewProjectView extends Composite<VerticalLayout> {
         layoutRow.addClassName(LumoUtility.Gap.MEDIUM);
         layoutRow.setWidth("100%");
         layoutRow.setHeight("min-content");
-        saveButton.setText("Enviar");
+        saveButton.setText(i18nProvider.getTranslation("new_project.submit", getLocale()));
         saveButton.setWidth("min-content");
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
@@ -292,7 +286,7 @@ public class NewProjectView extends Composite<VerticalLayout> {
                     presupuestoData,
                     convocatoriaActual
             );
-            Notification.show("Proyecto guardado con éxito.", 3000, Notification.Position.MIDDLE);
+            Notification.show(i18nProvider.getTranslation("new_project.project_saved_success", getLocale()), 3000, Notification.Position.MIDDLE);
             UI.getCurrent().navigate("");
 
         } catch (IllegalArgumentException e) {
@@ -300,7 +294,7 @@ public class NewProjectView extends Composite<VerticalLayout> {
         } catch (Exception e) {
             System.err.println("Detalles del error: " + e.getCause());
             e.printStackTrace();
-            Notification.show("Ocurrió un error al crear el proyecto." + e.getMessage(), 7000, Notification.Position.MIDDLE);
+            Notification.show(i18nProvider.getTranslation("new_project.project_creation_error", getLocale()) + e.getMessage(), 7000, Notification.Position.MIDDLE);
         }
     }
 
@@ -319,15 +313,15 @@ public class NewProjectView extends Composite<VerticalLayout> {
             try {
                 byte[] fileData = buffer.getInputStream().readAllBytes(); // Leer los datos del archivo
                 dataSetter.accept(fileData); // Guardar los datos en la variable correspondiente
-                Notification.show("Cargado correctamente.", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("new_project.upload_success", getLocale()), 3000, Notification.Position.MIDDLE);
             } catch (IOException e) {
-                Notification.show("Error al cargar ", 5000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("new_project.upload_error", getLocale()), 5000, Notification.Position.MIDDLE);
             }
         });
 
         upload.addFileRemovedListener(event -> {
             dataSetter.accept(null); // Limpia los datos almacenados
-            Notification.show("Eliminado.", 3000, Notification.Position.MIDDLE);
+            Notification.show(i18nProvider.getTranslation("new_project.file_removed", getLocale()), 3000, Notification.Position.MIDDLE);
         });
 
         return upload;

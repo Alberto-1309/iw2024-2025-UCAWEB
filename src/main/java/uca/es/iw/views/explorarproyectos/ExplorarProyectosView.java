@@ -34,9 +34,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import uca.es.iw.data.Proyecto;
 import uca.es.iw.services.ProyectoService;
+import com.vaadin.flow.i18n.I18NProvider;
 
-@PageTitle("Explorar Proyectos")
-@Route("explorar-proyectos/:proyectoID?/:action?(edit)")
+@Route(value = "explorar-proyectos/:proyectoID?/:action?(edit)", layout = uca.es.iw.views.MainLayout.class)
 @Menu(order = 2, icon = "line-awesome/svg/columns-solid.svg")
 @PermitAll
 @Uses(Icon.class)
@@ -46,6 +46,7 @@ public class ExplorarProyectosView extends Div implements BeforeEnterObserver {
     private final String PROYECTO_EDIT_ROUTE_TEMPLATE = "explorar-proyectos/%s/edit";
 
     private final Grid<Proyecto> grid = new Grid<>(Proyecto.class, false);
+    private final I18NProvider i18nProvider;
 
     private TextField titulo;
     private TextField solicitante;
@@ -61,11 +62,15 @@ public class ExplorarProyectosView extends Div implements BeforeEnterObserver {
 
     private final ProyectoService proyectoService;
 
-    public ExplorarProyectosView(ProyectoService proyectoService) {
+    public ExplorarProyectosView(ProyectoService proyectoService, I18NProvider i18nProvider) {
 
         this.proyectoService = proyectoService;
+        this.i18nProvider = i18nProvider;
         addClassNames("explorar-proyectos-view");
 
+        // Traducción de los textos de los botones
+        cancel.setText(i18nProvider.getTranslation("explorar_proyectos.cancelar", getLocale()));
+        save.setText(i18nProvider.getTranslation("explorar_proyectos.guardar", getLocale()));
         // Create UI
         SplitLayout splitLayout = new SplitLayout();
 
@@ -83,10 +88,10 @@ public class ExplorarProyectosView extends Div implements BeforeEnterObserver {
                 return anchor;
             }
             return null;
-                })).setHeader("Título").setAutoWidth(true);
-        grid.addColumn("nombreSolicitante").setHeader("Solicitante").setAutoWidth(true);
-        grid.addColumn("estado").setHeader("Estado").setAutoWidth(true);
-        grid.addColumn("fechaCreado").setHeader("Fecha de Solicitud").setAutoWidth(true);
+                })).setHeader(i18nProvider.getTranslation("explorar_proyectos.titulo", getLocale())).setAutoWidth(true);
+        grid.addColumn("nombreSolicitante").setHeader(i18nProvider.getTranslation("explorar_proyectos.solicitante", getLocale())).setAutoWidth(true);
+        grid.addColumn("estado").setHeader(i18nProvider.getTranslation("explorar_proyectos.estado", getLocale())).setAutoWidth(true);
+        grid.addColumn("fechaCreado").setHeader(i18nProvider.getTranslation("explorar_proyectos.fecha_solicitud", getLocale())).setAutoWidth(true);
 
         grid.setItems(query -> proyectoService.list(
                         PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
@@ -137,7 +142,8 @@ public class ExplorarProyectosView extends Div implements BeforeEnterObserver {
                 populateForm(proyectoFromBackend.get());
             } else {
                 Notification.show(
-                        String.format("No se encontró el proyecto solicitado, ID = %s", proyectoId.get()),
+                        String.format(i18nProvider.getTranslation("explorar_proyectos.notificacion.proyecto_no_encontrado", getLocale()),
+                                proyectoId.get()),
                         3000, Notification.Position.BOTTOM_START);
                 refreshGrid();
                 event.forwardTo(ExplorarProyectosView.class);
@@ -154,11 +160,16 @@ public class ExplorarProyectosView extends Div implements BeforeEnterObserver {
         editorLayoutDiv.add(editorDiv);
 
         FormLayout formLayout = new FormLayout();
-        titulo = new TextField("Título");
-        solicitante = new TextField("Usuario solicitante");
-        estado = new ComboBox<>("Estado");
-        estado.setItems("Pendiente", "Aprobado", "Rechazado");
-        fechaSolicitud = new DatePicker("Fecha de Solicitud");
+        titulo = new TextField(i18nProvider.getTranslation("explorar_proyectos.titulo", getLocale()));
+        solicitante = new TextField(i18nProvider.getTranslation("explorar_proyectos.solicitante", getLocale()));
+        estado = new ComboBox<>(i18nProvider.getTranslation("explorar_proyectos.estado", getLocale()));
+        estado.setItems(
+                i18nProvider.getTranslation("explorar_proyectos.estado.pendiente", getLocale()),
+                i18nProvider.getTranslation("explorar_proyectos.estado.aprobado", getLocale()),
+                i18nProvider.getTranslation("explorar_proyectos.estado.rechazado", getLocale())
+        );
+        fechaSolicitud = new DatePicker(i18nProvider.getTranslation("explorar_proyectos.fecha_solicitud", getLocale()));
+
         formLayout.add(titulo, solicitante, estado, fechaSolicitud);
 
         editorDiv.add(formLayout);

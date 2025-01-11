@@ -1,7 +1,5 @@
 package uca.es.iw.views.selection;
 
-import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -18,170 +16,180 @@ import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
-//import org.springframework.data.jpa.repository.Query;
+import uca.es.iw.data.Convocatoria;
 import uca.es.iw.data.Proyecto;
-import uca.es.iw.data.Recursos;
 import uca.es.iw.services.ProyectoService;
 import uca.es.iw.services.RecursosService;
-import com.vaadin.flow.data.provider.Query;
-
-
+import com.vaadin.flow.i18n.I18NProvider;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@PageTitle("Selección de Proyectos")
-@Route("project-selection")
+@Route(value = "project-selection", layout = uca.es.iw.views.MainLayout.class)
 @Menu(order = 11, icon = "line-awesome/svg/tasks-solid.svg")
 @RolesAllowed({"CIO"})
-public class ProjectSelectionView extends Composite<VerticalLayout> {
+public class ProjectSelectionView extends VerticalLayout {
 
     private final ProyectoService proyectoService;
     private final RecursosService recursosService;
+    private final I18NProvider i18nProvider;
 
-    private final Span financiacionRestante = new Span("Presupuesto restante: 0.00 €");
-    private final Span recursosRestantes = new Span("Recursos humanos restantes: 0");
+    private final ComboBox<Convocatoria> convocatoriaComboBox = new ComboBox<>();
+    private final Span financiacionRestante = new Span();
+    private final Span recursosRestantes = new Span();
+
+    private final Grid<Proyecto> projectGrid = new Grid<>(Proyecto.class, false);
 
     private double totalFinanciacionRestante = 0.0;
     private int totalRecursosRestantes = 0;
-
     private final Map<Long, String> selectedStatuses = new HashMap<>();
 
-
-    public ProjectSelectionView(ProyectoService proyectoService, RecursosService recursosService) {
+    public ProjectSelectionView(ProyectoService proyectoService, RecursosService recursosService, I18NProvider i18nProvider) {
         this.proyectoService = proyectoService;
         this.recursosService = recursosService;
+        this.i18nProvider = i18nProvider;
 
-        VerticalLayout content = getContent();
-        content.setWidth("100%");
-        content.setAlignItems(FlexComponent.Alignment.CENTER);
+        setWidth("100%");
+        setAlignItems(FlexComponent.Alignment.CENTER);
 
-        H2 title = new H2("Selección de Proyectos");
-        content.add(title);
+        H2 title = new H2(i18nProvider.getTranslation("project_selection.title", getLocale()));
+        add(title);
 
-        // Tabla de proyectos
-        Grid<Proyecto> projectGrid = new Grid<>(Proyecto.class, false);
+        convocatoriaComboBox.setLabel(i18nProvider.getTranslation("project_selection.select_convocatoria", getLocale()));
+        convocatoriaComboBox.setItemLabelGenerator(Convocatoria::getNombre);
+        convocatoriaComboBox.setItems(proyectoService.getAllConvocatorias());
+        convocatoriaComboBox.addValueChangeListener(event -> loadProjects(event.getValue()));
+        add(convocatoriaComboBox);
+
+        configureProjectGrid();
+        add(projectGrid);
+
+        HorizontalLayout statsLayout = new HorizontalLayout(financiacionRestante, recursosRestantes);
+        statsLayout.setWidthFull();
+        statsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
+        add(statsLayout);
+
+        Button saveButton = new Button(i18nProvider.getTranslation("project_selection.save", getLocale()), event -> saveChanges());
+        add(saveButton);
+
+        loadProjects(null);
+    }
+
+    private void configureProjectGrid() {
         projectGrid.setSelectionMode(SelectionMode.NONE);
         projectGrid.setWidthFull();
 
-        //projectGrid.addColumn(Proyecto::getNombreCorto).setHeader("Nombre").setSortable(true);
         projectGrid.addColumn(new ComponentRenderer<>(proyecto -> {
-            if (proyecto instanceof Proyecto) {
-                Anchor anchor = new Anchor(String.format("project-view/%s", ((Proyecto)proyecto).getId()), proyecto.getNombreCorto());
-                anchor.getElement().setAttribute("theme", "tertiary");
-                return anchor;
-            }
-            return null;
-        })).setHeader("Título").setAutoWidth(true);
-        projectGrid.addColumn(Proyecto::getFinanciacionNecesaria).setHeader("Presupuesto necesario").setSortable(true);
-        projectGrid.addColumn(Proyecto::getRecursosHumanosNecesarios).setHeader("RRHH necesarios").setSortable(true);
-        projectGrid.addColumn(Proyecto::getCalFinal).setHeader("Calificación Final").setSortable(true);
+            Anchor anchor = new Anchor(String.format("project-view/%s", proyecto.getId()), proyecto.getNombreCorto());
+            anchor.getElement().setAttribute("theme", "tertiary");
+            return anchor;
+        })).setHeader(i18nProvider.getTranslation("project_selection.title", getLocale())).setAutoWidth(true);
 
-        // ComboBox en cada fila
+        projectGrid.addColumn(Proyecto::getFinanciacionNecesaria)
+                .setHeader(i18nProvider.getTranslation("project_selection.budget_needed", getLocale()))
+                .setSortable(true);
+        projectGrid.addColumn(Proyecto::getRecursosHumanosNecesarios)
+                .setHeader(i18nProvider.getTranslation("project_selection.human_resources_needed", getLocale()))
+                .setSortable(true);
+        projectGrid.addColumn(Proyecto::getCalFinal)
+                .setHeader(i18nProvider.getTranslation("project_selection.final_grade", getLocale()))
+                .setSortable(true);
+
         projectGrid.addComponentColumn(project -> {
             ComboBox<String> comboBox = new ComboBox<>();
-            comboBox.setItems("Pendiente", "Aceptado", "Rechazado");
-            comboBox.setValue(getProjectState(project)); // Mostrar el estado inicial del proyecto
-            comboBox.setId("combo-" + project.getId()); // Asignar un ID único al ComboBox
+            comboBox.setItems(
+                    i18nProvider.getTranslation("project_selection.pending", getLocale()),
+                    i18nProvider.getTranslation("project_selection.accepted", getLocale()),
+                    i18nProvider.getTranslation("project_selection.rejected", getLocale())
+            );
+            comboBox.setValue(getProjectState(project));
 
-            // Lógica de actualización
             comboBox.addValueChangeListener(event -> {
-                String oldValue = event.getOldValue();
-                String newValue = event.getValue();
-
-                if ("Aceptado".equals(newValue)) {
-                    if (!"Aceptado".equals(oldValue)) {
-                        totalFinanciacionRestante -= project.getFinanciacionNecesaria();
-                        totalRecursosRestantes -= project.getRecursosHumanosNecesarios();
-                    }
-                } else if ("Rechazado".equals(newValue)) {
-                    if ("Aceptado".equals(oldValue)) {
-                        totalFinanciacionRestante += project.getFinanciacionNecesaria();
-                        totalRecursosRestantes += project.getRecursosHumanosNecesarios();
-                    }
-                } else if ("Pendiente".equals(newValue)) {
-                    if ("Aceptado".equals(oldValue)) {
-                        totalFinanciacionRestante += project.getFinanciacionNecesaria();
-                        totalRecursosRestantes += project.getRecursosHumanosNecesarios();
-                    }
-                }
-                selectedStatuses.put(project.getId(), event.getValue());
+                String newStateInSpanish = convertToSpanish(event.getValue());
+                updateProjectState(project, event.getOldValue(), newStateInSpanish);
                 updateStats();
             });
 
             return comboBox;
-        }).setHeader("Estado").setKey("Estado");
-
-        content.add(projectGrid);
-
-        // Estadísticas
-        HorizontalLayout statsLayout = new HorizontalLayout(financiacionRestante, recursosRestantes);
-        statsLayout.setWidthFull();
-        statsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
-
-        content.add(statsLayout);
-
-        // Botón de guardar
-        Button saveButton = new Button("Guardar Cambios", event -> {
-            if (selectedStatuses.isEmpty()) {
-                Notification.show("No se han realizado cambios", 3000, Notification.Position.MIDDLE);
-                return;
-            }
-            if (totalFinanciacionRestante < 0) {
-                Notification.show("No hay suficiente financiación", 5000, Notification.Position.MIDDLE);
-                return;
-            }
-            if (totalRecursosRestantes < 0) {
-                Notification.show("No hay suficientes recursos humanos", 5000, Notification.Position.MIDDLE);
-                return;
-            }
-            try {
-                // Obtener los proyectos de la tabla
-                List<Proyecto> proyectos = projectGrid.getDataProvider().fetch(new Query<>()).toList();
-
-                for (Proyecto proyecto : proyectos) {
-                    // Obtener el estado seleccionado desde una estructura asociada
-                    String newStatus = selectedStatuses.get(proyecto.getId());
-                    if (newStatus != null) {
-                        proyectoService.updateProjectStatus(proyecto, newStatus);
-                    }
-                }
-
-                // Guardar recursos restantes
-                recursosService.updateRecursosRestantes(totalFinanciacionRestante, totalRecursosRestantes);
-
-                Notification.show("Cambios guardados correctamente", 3000, Notification.Position.MIDDLE);
-            } catch (Exception e) {
-                Notification.show("Error al guardar los cambios: " + e.getMessage(), 5000, Notification.Position.MIDDLE);
-            }
-        });
-
-
-
-        content.add(saveButton);
-
-        // Cargar datos en la tabla
-        loadProjects(projectGrid);
+        }).setHeader(i18nProvider.getTranslation("project_selection.state", getLocale()));
     }
-
-    // Obtener el estado actual del proyecto
-    private String getProjectState(Proyecto project) {
-        return project.getEstado();
+    private String convertToSpanish(String state) {
+        switch (state) {
+            case "Pending":
+                return "Pendiente";
+            case "Accepted":
+                return "Aceptado";
+            case "Rejected":
+                return "Rechazado";
+            default:
+                return state;
+        }
     }
-
-    private void loadProjects(Grid<Proyecto> projectGrid) {
-        List<Proyecto> proyectos = proyectoService.searchQualifiedProjects();
+    private void loadProjects(Convocatoria convocatoria) {
+        List<Proyecto> proyectos;
+        if (convocatoria == null) {
+            proyectos = proyectoService.searchQualifiedProjects();
+        } else {
+            proyectos = proyectoService.searchProjectsByConvocatoria(convocatoria);
+        }
         projectGrid.setItems(proyectos);
 
-        // Calcular valores iniciales
         totalFinanciacionRestante = recursosService.getPresupuestoRestante();
         totalRecursosRestantes = recursosService.getRecursosHumanosRestantes();
 
         updateStats();
     }
 
+    private String getProjectState(Proyecto project) {
+        return project.getEstado();
+    }
+
+    private void updateProjectState(Proyecto project, String oldState, String newState) {
+        if ("Aceptado".equals(newState) && !"Aceptado".equals(oldState)) {
+            totalFinanciacionRestante -= project.getFinanciacionNecesaria();
+            totalRecursosRestantes -= project.getRecursosHumanosNecesarios();
+        } else if ("Rechazado".equals(newState) && "Aceptado".equals(oldState)) {
+            totalFinanciacionRestante += project.getFinanciacionNecesaria();
+            totalRecursosRestantes += project.getRecursosHumanosNecesarios();
+        } else if ("Pendiente".equals(newState) && "Aceptado".equals(oldState)) {
+            totalFinanciacionRestante += project.getFinanciacionNecesaria();
+            totalRecursosRestantes += project.getRecursosHumanosNecesarios();
+        }
+
+        selectedStatuses.put(project.getId(), newState);
+    }
+
     private void updateStats() {
-        financiacionRestante.setText(String.format("Financiación restante: %.2f €", totalFinanciacionRestante));
-        recursosRestantes.setText("Recursos humanos restantes: " + totalRecursosRestantes);
+        financiacionRestante.setText(String.format(i18nProvider.getTranslation("project_selection.remaining_budget", getLocale()), totalFinanciacionRestante));
+        recursosRestantes.setText(i18nProvider.getTranslation("project_selection.remaining_resources", getLocale()) + totalRecursosRestantes);
+    }
+
+    private void saveChanges() {
+        if (selectedStatuses.isEmpty()) {
+            Notification.show(i18nProvider.getTranslation("project_selection.no_changes", getLocale()), 3000, Notification.Position.MIDDLE);
+            return;
+        }
+        if (totalFinanciacionRestante < 0) {
+            Notification.show(i18nProvider.getTranslation("project_selection.not_enough_funding", getLocale()), 5000, Notification.Position.MIDDLE);
+            return;
+        }
+        if (totalRecursosRestantes < 0) {
+            Notification.show(i18nProvider.getTranslation("project_selection.not_enough_resources", getLocale()), 5000, Notification.Position.MIDDLE);
+            return;
+        }
+
+        try {
+            projectGrid.getDataProvider().fetch(new com.vaadin.flow.data.provider.Query<>())
+                    .forEach(project -> {
+                        String newStatus = selectedStatuses.get(project.getId());
+                        if (newStatus != null) {
+                            proyectoService.updateProjectStatus(project, newStatus);
+                        }
+                    });
+            recursosService.updateRecursosRestantes(totalFinanciacionRestante, totalRecursosRestantes);
+            Notification.show(i18nProvider.getTranslation("project_selection.save_success", getLocale()), 3000, Notification.Position.MIDDLE);
+        } catch (Exception e) {
+            Notification.show(i18nProvider.getTranslation("project_selection.save_error", getLocale()) + e.getMessage(), 5000, Notification.Position.MIDDLE);
+        }
     }
 }

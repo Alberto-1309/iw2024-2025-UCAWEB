@@ -49,8 +49,6 @@ public class ProfileView extends VerticalLayout {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.i18nProvider = i18nProvider;
-        // Establecer el título de la página, que luego se pasará al MainLayout
-        getUI().ifPresent(ui -> ui.getPage().setTitle(i18nProvider.getTranslation("profile.title", getLocale())));
         // Configurar campos iniciales
         Optional<User> maybeUser = authenticatedUser.get();
         if (maybeUser.isPresent()) {

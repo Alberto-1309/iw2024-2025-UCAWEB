@@ -20,38 +20,35 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import uca.es.iw.services.ProyectoService;
 import uca.es.iw.services.RecursosService;
+import com.vaadin.flow.i18n.I18NProvider;
 
 import static org.apache.commons.lang3.math.NumberUtils.max;
 
-@PageTitle("Evaluación financiera")
-@Route("financialevaluation")
+@Route(value = "financialevaluation", layout = uca.es.iw.views.MainLayout.class)
 @Menu(order = 9, icon = "line-awesome/svg/money-bill-solid.svg")
 @RolesAllowed({"CIO", "OTP"})
 public class AvailabilityEvaluationView extends Composite<VerticalLayout> {
 
-    @ClientCallable
-    public void showNotification(String message) {
-        Notification.show(message, 3000, Notification.Position.MIDDLE);
-    }
-
     private final ProyectoService proyectoService;
     private final RecursosService recursosService;
+    private final I18NProvider i18nProvider;
 
-    public AvailabilityEvaluationView(ProyectoService proyectoService, RecursosService recursosService) {
+    public AvailabilityEvaluationView(ProyectoService proyectoService, RecursosService recursosService, I18NProvider i18nProvider) {
         this.proyectoService = proyectoService;
         this.recursosService = recursosService;
+        this.i18nProvider = i18nProvider;
 
         VerticalLayout layoutColumn2 = new VerticalLayout();
         FormLayout formLayout2Col = new FormLayout();
         ComboBox<String> comboBox = new ComboBox<>();
         Hr hr = new Hr();
-        H2 h2 = new H2("Datos financieros");
+        H2 h2 = new H2(i18nProvider.getTranslation("financialevaluation.title", getLocale()));
         Hr hr2 = new Hr();
 
         // Botones de descarga
-        Button downloadMemoryButton = new Button("Descargar memoria");
-        Button downloadSpecsButton = new Button("Descargar especificaciones técnicas");
-        Button downloadBudgetButton = new Button("Descargar presupuestos");
+        Button downloadMemoryButton = new Button(i18nProvider.getTranslation("financialevaluation.downloadMemory", getLocale()));
+        Button downloadSpecsButton = new Button(i18nProvider.getTranslation("financialevaluation.downloadSpecs", getLocale()));
+        Button downloadBudgetButton = new Button(i18nProvider.getTranslation("financialevaluation.downloadBudget", getLocale()));
 
         downloadMemoryButton.setEnabled(false);
         downloadSpecsButton.setEnabled(false);
@@ -62,19 +59,18 @@ public class AvailabilityEvaluationView extends Composite<VerticalLayout> {
         downloadBudgetButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         // ComboBox para selección de proyectos
-        comboBox.setLabel("Selecciona un proyecto para evaluar");
+        comboBox.setLabel(i18nProvider.getTranslation("financialevaluation.selectProject", getLocale()));
         comboBox.setWidth("min-content");
 
         proyectoService.setSelectProjects(comboBox);
 
         // Campos de recursos humanos y presupuesto
         NumberField recursosHumanos = new NumberField();
-        recursosHumanos.setLabel("Número estimado de recursos humanos");
+        recursosHumanos.setLabel(i18nProvider.getTranslation("financialevaluation.humanResources", getLocale()));
         recursosHumanos.setWidth("300px");
         NumberField presupuestoEstimado = new NumberField();
-        presupuestoEstimado.setLabel("Presupuesto estimado en euros");
+        presupuestoEstimado.setLabel(i18nProvider.getTranslation("financialevaluation.estimatedBudget", getLocale()));
         presupuestoEstimado.setWidth("300px");
-
 
         getContent().setWidth("100%");
         getContent().getStyle().set("flex-grow", "1");
@@ -89,7 +85,7 @@ public class AvailabilityEvaluationView extends Composite<VerticalLayout> {
 
         formLayout2Col.setWidth("100%");
         // Notificación de calificación
-        Span calificacionLabel = new Span("Calificación de disponibilidad: Sin calificar");
+        Span calificacionLabel = new Span(i18nProvider.getTranslation("financialevaluation.noRating", getLocale()));
         calificacionLabel.setVisible(false);
 
         comboBox.addValueChangeListener(event -> {
@@ -105,9 +101,9 @@ public class AvailabilityEvaluationView extends Composite<VerticalLayout> {
                 // Obtener la calificación de oportunidad desde el servicio (si existe)
                 Double calDisponibilidad = proyectoService.getCalificacionDisponibilidad(selectedProject);
                 if (calDisponibilidad != null) {
-                    calificacionLabel.setText("Calificación de oportunidad: " + calDisponibilidad);
+                    calificacionLabel.setText(i18nProvider.getTranslation("financialevaluation.opportunityRating", getLocale()) + ": " + calDisponibilidad);
                 } else {
-                    calificacionLabel.setText("Calificación de oportunidad: Sin calificar");
+                    calificacionLabel.setText(i18nProvider.getTranslation("financialevaluation.noRating", getLocale()));
                 }
             } else {
                 // Ocultar el Span si no hay proyecto seleccionado
@@ -125,7 +121,7 @@ public class AvailabilityEvaluationView extends Composite<VerticalLayout> {
                                 "if (response.ok) {" +
                                 "    window.open($0, '_blank');" +
                                 "} else {" +
-                                "    $1.$server.showNotification('La memoria no está disponible para el proyecto seleccionado.');" +
+                                "    $1.$server.showNotification('" + i18nProvider.getTranslation("financialevaluation.memoryNotAvailable", getLocale()) + "');" +
                                 "}});",
                         downloadUrl, getElement());
             }
@@ -141,7 +137,7 @@ public class AvailabilityEvaluationView extends Composite<VerticalLayout> {
                                 "if (response.ok) {" +
                                 "    window.open($0, '_blank');" +
                                 "} else {" +
-                                "    $1.$server.showNotification('Las especificaciones no están disponibles para el proyecto seleccionado.');" +
+                                "    $1.$server.showNotification('" + i18nProvider.getTranslation("financialevaluation.specificationsNotAvailable", getLocale()) + "');" +
                                 "}});",
                         downloadUrl, getElement());
             }
@@ -157,20 +153,20 @@ public class AvailabilityEvaluationView extends Composite<VerticalLayout> {
                                 "if (response.ok) {" +
                                 "    window.open($0, '_blank');" +
                                 "} else {" +
-                                "    $1.$server.showNotification('Los presupuestos no están disponibles para el proyecto seleccionado.');" +
+                                "    $1.$server.showNotification('" + i18nProvider.getTranslation("financialevaluation.budgetNotAvailable", getLocale()) + "');" +
                                 "}});",
                         downloadUrl, getElement());
             }
         });
 
         // Botón de guardar calificación
-        Button saveButton = new Button("Guardar");
+        Button saveButton = new Button(i18nProvider.getTranslation("financialevaluation.save", getLocale()));
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         saveButton.addClickListener(e -> {
             String selectedProject = comboBox.getValue();
             if (selectedProject == null) {
-                Notification.show("Por favor, selecciona un proyecto.", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("financialevaluation.selectProjectAlert", getLocale()), 3000, Notification.Position.MIDDLE);
                 return;
             }
 
@@ -191,10 +187,10 @@ public class AvailabilityEvaluationView extends Composite<VerticalLayout> {
 
                 // Guardar calificación
                 proyectoService.updateCalDisponibilidad(selectedProject, calificacion, recursos, max(0, presupuesto));
-                Notification.show("Calificación de disponibilidad guardada correctamente.", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("financialevaluation.saveSuccess", getLocale()), 3000, Notification.Position.MIDDLE);
 
                 // Mostrar la calificación en el Span
-                calificacionLabel.setText("Calificación de disponibilidad: " + calificacion);
+                calificacionLabel.setText(i18nProvider.getTranslation("financialevaluation.availabilityRating", getLocale()) + ": " + calificacion);
                 calificacionLabel.setVisible(true);
 
                 // Limpiar campos
@@ -202,11 +198,11 @@ public class AvailabilityEvaluationView extends Composite<VerticalLayout> {
                 recursosHumanos.clear();
                 presupuestoEstimado.clear();
             } catch (Exception ex) {
-                Notification.show("Error al guardar la calificación: " + ex.getMessage(), 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("financialevaluation.saveError", getLocale()) + ": " + ex.getMessage(), 3000, Notification.Position.MIDDLE);
             }
         });
 
-            getContent().add(layoutColumn2);
+        getContent().add(layoutColumn2);
         layoutColumn2.add(formLayout2Col);
         formLayout2Col.add(comboBox);
         layoutColumn2.add(downloadMemoryButton, downloadSpecsButton, downloadBudgetButton);

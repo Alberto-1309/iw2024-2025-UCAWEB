@@ -1,4 +1,4 @@
-package uca.es.iw.views.gestionarconvocatorias;
+package uca.es.iw.views.managecall;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -9,7 +9,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.router.Menu;
@@ -19,14 +18,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uca.es.iw.data.Convocatoria;
 import uca.es.iw.services.ConvocatoriaService;
 import uca.es.iw.views.MainLayout;
-import uca.es.iw.views.modconvocatoria.ModifyConvocatoriaView;
+import uca.es.iw.views.modcall.ModifyCallView;
 
 import java.util.List;
 
 @Route(value = "convocatoria-management", layout = MainLayout.class)
 @Menu(order = 2, icon = "line-awesome/svg/calendar.svg")
 @RolesAllowed("ADMIN")
-public class ConvocatoriaView extends VerticalLayout {
+public class CallView extends VerticalLayout {
 
     private final ConvocatoriaService convocatoriaService;
     private final I18NProvider i18nProvider;
@@ -36,15 +35,13 @@ public class ConvocatoriaView extends VerticalLayout {
     private final TextField objetivoField = new TextField();
     private final DatePicker fechaInicioField = new DatePicker();
     private final DatePicker fechaFinField = new DatePicker();
-    private final NumberField presupuestoField = new NumberField();
-    private final NumberField recursosHumanosField = new NumberField();
     private final Button saveButton;
     private final Button clearButton;
 
     private Long editingId = null;
 
     @Autowired
-    public ConvocatoriaView(ConvocatoriaService convocatoriaService, I18NProvider i18nProvider) {
+    public CallView(ConvocatoriaService convocatoriaService, I18NProvider i18nProvider) {
         this.convocatoriaService = convocatoriaService;
         this.i18nProvider = i18nProvider;
 
@@ -64,16 +61,12 @@ public class ConvocatoriaView extends VerticalLayout {
         objetivoField.setWidth("100%");
         fechaInicioField.setWidth("100%");
         fechaFinField.setWidth("100%");
-        presupuestoField.setWidth("100%");
-        recursosHumanosField.setWidth("100%");
 
         // Configurar campos del formulario con traducción
         nombreField.setLabel(i18nProvider.getTranslation("call.name", getLocale()));
         objetivoField.setLabel(i18nProvider.getTranslation("call.objective", getLocale()));
         fechaInicioField.setLabel(i18nProvider.getTranslation("call.start_date", getLocale()));
         fechaFinField.setLabel(i18nProvider.getTranslation("call.end_date", getLocale()));
-        presupuestoField.setLabel(i18nProvider.getTranslation("call.budget", getLocale()));
-        recursosHumanosField.setLabel(i18nProvider.getTranslation("call.human_resources", getLocale()));
 
         // Configuración de botones con traducción
         saveButton = new Button(i18nProvider.getTranslation("call.save", getLocale()), event -> saveConvocatoria());
@@ -85,7 +78,7 @@ public class ConvocatoriaView extends VerticalLayout {
         buttonsLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         // Diseño del formulario
-        add(nombreField, objetivoField, fechaInicioField, fechaFinField, presupuestoField, recursosHumanosField, buttonsLayout);
+        add(nombreField, objetivoField, fechaInicioField, fechaFinField, buttonsLayout);
 
         // Configuración del grid
         configureGrid();
@@ -93,7 +86,7 @@ public class ConvocatoriaView extends VerticalLayout {
         add(convocatoriaGrid);
 
         // Cargar convocatorias
-        loadConvocatorias();
+        loadCalls();
     }
 
     private void configureGrid() {
@@ -109,22 +102,16 @@ public class ConvocatoriaView extends VerticalLayout {
         convocatoriaGrid.addColumn(Convocatoria::getFechaCierre)
                 .setHeader(i18nProvider.getTranslation("call.grid.end_date", getLocale()))
                 .setSortable(true);
-        convocatoriaGrid.addColumn(Convocatoria::getPresupuestoTotal)
-                .setHeader(i18nProvider.getTranslation("call.grid.budget", getLocale()))
-                .setSortable(true);
-        convocatoriaGrid.addColumn(Convocatoria::getCupoRecursosHumanos)
-                .setHeader(i18nProvider.getTranslation("call.grid.human_resources", getLocale()))
-                .setSortable(true);
         convocatoriaGrid.addComponentColumn(convocatoria -> {
             Button editButton = new Button(i18nProvider.getTranslation("call.grid.edit", getLocale()), event ->
-                    UI.getCurrent().navigate(ModifyConvocatoriaView.class, convocatoria.getId()));
+                    UI.getCurrent().navigate(ModifyCallView.class, convocatoria.getId()));
             Button deleteButton = new Button(i18nProvider.getTranslation("call.grid.delete", getLocale()), event ->
                     deleteConvocatoria(convocatoria));
             return new HorizontalLayout(editButton, deleteButton);
         }).setHeader(i18nProvider.getTranslation("call.grid.actions", getLocale()));
     }
 
-    private void loadConvocatorias() {
+    private void loadCalls() {
         List<Convocatoria> convocatorias = convocatoriaService.getAllConvocatorias();
         convocatoriaGrid.setItems(convocatorias);
     }
@@ -136,9 +123,7 @@ public class ConvocatoriaView extends VerticalLayout {
                         nombreField.getValue(),
                         objetivoField.getValue(),
                         fechaInicioField.getValue(),
-                        fechaFinField.getValue(),
-                        presupuestoField.getValue(),
-                        recursosHumanosField.getValue().intValue()
+                        fechaFinField.getValue()
                 );
                 Notification.show(i18nProvider.getTranslation("call.notification.created", getLocale()));
             } else {
@@ -147,15 +132,13 @@ public class ConvocatoriaView extends VerticalLayout {
                         nombreField.getValue(),
                         objetivoField.getValue(),
                         fechaInicioField.getValue(),
-                        fechaFinField.getValue(),
-                        presupuestoField.getValue(),
-                        recursosHumanosField.getValue().intValue()
+                        fechaFinField.getValue()
                 );
                 Notification.show(i18nProvider.getTranslation("call.notification.updated", getLocale()));
                 editingId = null;
             }
             clearForm();
-            loadConvocatorias();
+            loadCalls();
         } catch (Exception e) {
             Notification.show(i18nProvider.getTranslation("call.notification.error", getLocale(), e.getMessage()), 5000, Notification.Position.MIDDLE);
         }
@@ -165,7 +148,7 @@ public class ConvocatoriaView extends VerticalLayout {
         try {
             convocatoriaService.deleteConvocatoria(convocatoria.getId());
             Notification.show(i18nProvider.getTranslation("call.notification.deleted", getLocale()));
-            loadConvocatorias();
+            loadCalls();
         } catch (Exception e) {
             Notification.show(i18nProvider.getTranslation("call.notification.error", getLocale(), e.getMessage()), 5000, Notification.Position.MIDDLE);
         }
@@ -177,7 +160,5 @@ public class ConvocatoriaView extends VerticalLayout {
         objetivoField.clear();
         fechaInicioField.clear();
         fechaFinField.clear();
-        presupuestoField.clear();
-        recursosHumanosField.clear();
     }
 }

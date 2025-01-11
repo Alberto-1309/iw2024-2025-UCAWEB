@@ -28,11 +28,11 @@ import uca.es.iw.data.User;
 import uca.es.iw.data.UserRepository;
 import uca.es.iw.services.ProyectoService;
 import uca.es.iw.views.project.ProjectView;
+import com.vaadin.flow.i18n.I18NProvider;
 
 import java.util.List;
 
-@Route("avalar-proyectos/:proyectoID?/:action?(edit)")
-@PageTitle("Proyectos Pendientes")
+@Route(value = "avalar-proyectos/:proyectoID?/:action?(edit)", layout = uca.es.iw.views.MainLayout.class)
 @Menu(order = 4, icon = "line-awesome/svg/file.svg")
 @RolesAllowed("PROMOTOR")
 public class PromotorView extends VerticalLayout {
@@ -42,12 +42,14 @@ public class PromotorView extends VerticalLayout {
     private final ProyectoService proyectoService;
 
     private final Grid<Proyecto> grid = new Grid<>();
+    private final I18NProvider i18nProvider;
 
     @Autowired
-    public PromotorView(ProyectoRepository proyectoRepository, UserRepository userRepository, ProyectoService proyectoService) {
+    public PromotorView(ProyectoRepository proyectoRepository, UserRepository userRepository, ProyectoService proyectoService, I18NProvider i18nProvider) {
         this.proyectoRepository = proyectoRepository;
         this.userRepository = userRepository;
         this.proyectoService = proyectoService;
+        this.i18nProvider = i18nProvider;
 
         String promotor = getAuthenticatedPromotorName();
 
@@ -66,15 +68,15 @@ public class PromotorView extends VerticalLayout {
                 return anchor;
             }
             return null;
-        })).setHeader("Título").setAutoWidth(true);
+        })).setHeader(i18nProvider.getTranslation("promotor_view.title", getLocale())).setAutoWidth(true);
 
         // Otras columnas que quieres mostrar
-        grid.addColumn(Proyecto::getNombreSolicitante).setHeader("Solicitante").setAutoWidth(true);
-        grid.addColumn(Proyecto::getEstado).setHeader("Estado").setAutoWidth(true);
-        grid.addColumn(Proyecto::getFechaCreado).setHeader("Fecha de Solicitud").setAutoWidth(true);
+        grid.addColumn(Proyecto::getNombreSolicitante).setHeader(i18nProvider.getTranslation("promotor_view.solicitante", getLocale())).setAutoWidth(true);
+        grid.addColumn(Proyecto::getEstado).setHeader(i18nProvider.getTranslation("promotor_view.estado", getLocale())).setAutoWidth(true);
+        grid.addColumn(Proyecto::getFechaCreado).setHeader(i18nProvider.getTranslation("promotor_view.fecha_solicitud", getLocale())).setAutoWidth(true);
 
         // Columna de acciones (Avalar y No Avalar)
-        grid.addComponentColumn(this::createActionButtons).setHeader("Acciones");
+        grid.addComponentColumn(this::createActionButtons).setHeader(i18nProvider.getTranslation("promotor_view.acciones", getLocale()));
 
         // Opcional: puedes deshabilitar bordes
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
@@ -86,7 +88,7 @@ public class PromotorView extends VerticalLayout {
 
         // Si no hay proyectos pendientes, muestra una notificación
         if (proyectosPendientes.isEmpty()) {
-            Notification.show("No hay proyectos pendientes para este promotor.");
+            Notification.show(i18nProvider.getTranslation("promotor_view.no_proyectos", getLocale()));
         } else {
             // Estableces los proyectos al grid
             grid.setItems(proyectosPendientes);
@@ -110,8 +112,8 @@ public class PromotorView extends VerticalLayout {
     }
 
     private HorizontalLayout createActionButtons(Proyecto proyecto) {
-        Button avalarButton = new Button("Avalar", event -> gestionarProyecto(proyecto, "AVALADO"));
-        Button rechazarButton = new Button("No Avalar", event -> gestionarProyecto(proyecto, "NO_AVALADO"));
+        Button avalarButton = new Button(i18nProvider.getTranslation("promotor_view.avalar", getLocale()), event -> gestionarProyecto(proyecto, "AVALADO"));
+        Button rechazarButton = new Button(i18nProvider.getTranslation("promotor_view.no_avalar", getLocale()), event -> gestionarProyecto(proyecto, "NO_AVALADO"));
 
         return new HorizontalLayout(avalarButton, rechazarButton);
     }
@@ -124,6 +126,6 @@ public class PromotorView extends VerticalLayout {
         // Actualiza el grid después de la acción
         grid.getListDataView().removeItem(proyecto);
 
-        Notification.show("Proyecto " + nuevoEstado.toLowerCase() + ": " + proyecto.getTitulo(), 3000, Notification.Position.TOP_CENTER);
+        Notification.show(i18nProvider.getTranslation("promotor_view.proyecto_estado", getLocale()) + ": " + proyecto.getTitulo(), 3000, Notification.Position.TOP_CENTER);
     }
 }

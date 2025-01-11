@@ -64,10 +64,8 @@ public class MainLayout extends AppLayout {
     private void addHeaderContent() {
         DrawerToggle toggle = new DrawerToggle();
         toggle.setAriaLabel("Menu toggle");
-
-        // Agregar un logo
-        Image logo = new Image("images/uca-logo.png", "UCA Logo");
-        logo.setHeight("40px"); // Ajusta el tamaño del logo
+        toggle.getElement().getStyle()
+                .set("color", "white");
 
         // Estilo del título
         viewTitle = new H1("Universidad de Cádiz");
@@ -102,7 +100,7 @@ public class MainLayout extends AppLayout {
         englishItem.getElement().getStyle().set("color", "black");
 
         // Crear un contenedor horizontal para el header
-        HorizontalLayout headerLayout = new HorizontalLayout(toggle, logo, viewTitle, languageMenu);
+        HorizontalLayout headerLayout = new HorizontalLayout(toggle, viewTitle, languageMenu);
         headerLayout.setAlignItems(Alignment.CENTER);
         headerLayout.setWidthFull();
         headerLayout.setSpacing(true);
@@ -133,8 +131,21 @@ public class MainLayout extends AppLayout {
         menuEntries.forEach(entry -> {
             // Determinar la clave de traducción según la ruta o clase de vista
             String translationKey = switch (entry.title()) {
+                case "ModifyUserView" -> "modify_user.title";
+                case "OportunityEvaluationView" -> "oportunity.title";
                 case "WelcomeView" -> "welcome.title";
-                case "ConvocatoriaView" -> "call.title";
+                case "ProjectSelectionView" -> "project_selection.title";
+                case "NewProjectView" -> "new_project.title";
+                case "ExplorarProyectosView" -> "explorar_proyectos.title";
+                case "RegisterUserView" -> "register.title";
+                case "AddUserView" -> "add_user.title";
+                case "PromotorView" -> "promotor_view.title";
+                case "SearchUsersView" -> "search_users.title";
+                case "MisProyectosView" -> "mis_proyectos.titulo";
+                case "WeighsView" -> "edit_weighs.title";
+                case "TechnicalEvaluationView" -> "technical_evaluation.title";
+                case "AvailabilityEvaluationView" -> "financialevaluation.title";
+                case "CallView" -> "call.title";
                 default -> null;
             };
             // Si hay una clave de traducción, intenta obtener la traducción; de lo contrario, usa el título original
@@ -247,13 +258,41 @@ public class MainLayout extends AppLayout {
     private String getCurrentPageTitle() {
         String className = getContent().getClass().getSimpleName();
         switch (className) {
+            case "ModifyUserView":
+                return "modify_user.title";
+            case "RegisterUserView":
+                return "register.title";
+            case "OportunityEvaluationView":
+                return "oportunity.title";
+            case "ProjectSelectionView":
+                return "project_selection.title";
+            case "TechnicalEvaluationView":
+                return "technical_evaluation.title";
+            case "AvailabilityEvaluationView":
+                return "financialevaluation.title";
+            case "WeighsView":
+                return "edit_weighs.title";
+            case "SearchUsersView":
+                return "search_users.title";
+            case "PromotorView":
+                return "promotor_view.title";
+            case "AddUserView":
+                return "add_user.title";
+            case "MisProyectosView":
+                return "mis_proyectos.titulo";
+            case "ExplorarProyectosView":
+                return "explorar_proyectos.title";
+            case "NewProjectView":
+                return "new_project.title";
+            case "ModifyCallView":
+                return "modify_call.title";
             case "ProfileView":
                 return "profile.title";
             case "LoginView":
                 return "login.title";
             case "WelcomeView":
                 return "welcome.title";
-            case "ConvocatoriaView":
+            case "CallView":
                 return "call.title";
             default:
                 return "app.default_title";

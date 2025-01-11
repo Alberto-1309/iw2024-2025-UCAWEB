@@ -14,7 +14,6 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Menu;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,21 +21,24 @@ import uca.es.iw.services.UserService;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.i18n.I18NProvider;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-@PageTitle("Añadir usuario")
-@Route(value = "add-user")
+@Route(value = "add-user", layout = uca.es.iw.views.MainLayout.class)
 @Menu(order = 3, icon = "line-awesome/svg/user.svg")
 @RolesAllowed("ADMIN")
 public class AddUserView extends Composite<VerticalLayout> {
 
-    private Avatar avatar; // Muestra la imagen de perfil cargada
-    private byte[] profilePictureData; // Almacena temporalmente la imagen cargada
+    private Avatar avatar;
+    private byte[] profilePictureData;
 
     @Autowired
-    private UserService userService;  // Inyección de dependencia de UserService
+    private UserService userService;
+
+    private final I18NProvider i18nProvider;
 
     private TextField nameField;
     private TextField usernameField;
@@ -44,30 +46,35 @@ public class AddUserView extends Composite<VerticalLayout> {
     private ComboBox<String> roleComboBox;
     private EmailField emailField;
 
-    public AddUserView() {
+    @Autowired
+    public AddUserView(I18NProvider i18nProvider) {
+        this.i18nProvider = i18nProvider;
+
         VerticalLayout layoutColumn2 = new VerticalLayout();
-        H3 h3 = new H3("Información del usuario");
+        H3 h3 = new H3(i18nProvider.getTranslation("add_user.header", getLocale()));
 
-        // Formulario
         FormLayout formLayout = new FormLayout();
-        nameField = new TextField("Nombre");
-        usernameField = new TextField("Nombre de usuario");
-        passwordField = new PasswordField("Contraseña");
-        roleComboBox = new ComboBox<>("Tipo de usuario");
-        emailField = new EmailField("Email");
+        nameField = new TextField(i18nProvider.getTranslation("add_user.name", getLocale()));
+        usernameField = new TextField(i18nProvider.getTranslation("add_user.username", getLocale()));
+        passwordField = new PasswordField(i18nProvider.getTranslation("add_user.password", getLocale()));
+        roleComboBox = new ComboBox<>(i18nProvider.getTranslation("add_user.role", getLocale()));
+        emailField = new EmailField(i18nProvider.getTranslation("add_user.email", getLocale()));
 
-        roleComboBox.setItems("USER", "ADMIN", "OTP", "CIO", "PROMOTOR");
-        roleComboBox.setPlaceholder("Seleccione un rol");
+        roleComboBox.setItems(
+                i18nProvider.getTranslation("add_user.role.user", getLocale()),
+                i18nProvider.getTranslation("add_user.role.admin", getLocale()),
+                i18nProvider.getTranslation("add_user.role.otp", getLocale()),
+                i18nProvider.getTranslation("add_user.role.cio", getLocale()),
+                i18nProvider.getTranslation("add_user.role.promotor", getLocale())
+        );
+        roleComboBox.setPlaceholder(i18nProvider.getTranslation("add_user.role_placeholder", getLocale()));
 
-        // Avatar
         avatar = new Avatar();
-        avatar.setName("Vista previa");
+        avatar.setName(i18nProvider.getTranslation("add_user.avatar_preview", getLocale()));
 
-        // Componente de subida de imágenes
         Upload upload = getUpload();
 
-        // Botón para guardar
-        Button saveButton = new Button("Guardar");
+        Button saveButton = new Button(i18nProvider.getTranslation("add_user.save", getLocale()));
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         saveButton.addClickListener(event -> saveUser(
                 nameField.getValue(),
@@ -77,7 +84,6 @@ public class AddUserView extends Composite<VerticalLayout> {
                 emailField.getValue()
         ));
 
-        // Diseño principal
         formLayout.add(nameField, usernameField, passwordField, roleComboBox, emailField);
         layoutColumn2.add(h3, formLayout, avatar, upload, saveButton);
 
@@ -86,28 +92,26 @@ public class AddUserView extends Composite<VerticalLayout> {
     }
 
     private Upload getUpload() {
-        MemoryBuffer buffer = new MemoryBuffer(); // Buffer para almacenar la imagen
+        MemoryBuffer buffer = new MemoryBuffer();
         Upload upload = new Upload(buffer);
-        upload.setAcceptedFileTypes("image/jpeg", "image/png"); // Tipos de archivo aceptados
-        upload.setMaxFileSize(2 * 1024 * 1024); // Tamaño máximo: 2MB
+        upload.setAcceptedFileTypes("image/jpeg", "image/png");
+        upload.setMaxFileSize(2 * 1024 * 1024);
 
-        // Configuración de eventos para subir la imagen
         upload.addSucceededListener(event -> {
             InputStream inputStream = buffer.getInputStream();
             try {
-                profilePictureData = inputStream.readAllBytes(); // Lee los datos de la imagen
+                profilePictureData = inputStream.readAllBytes();
                 avatar.setImageResource(new StreamResource(event.getFileName(),
-                        () -> new ByteArrayInputStream(profilePictureData))); // Muestra la imagen
-                Notification.show("Imagen cargada correctamente", 3000, Notification.Position.MIDDLE);
+                        () -> new ByteArrayInputStream(profilePictureData)));
+                Notification.show(i18nProvider.getTranslation("add_user.image_success", getLocale()), 3000, Notification.Position.MIDDLE);
             } catch (IOException e) {
-                Notification.show("Error al cargar la imagen", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("add_user.image_error", getLocale()), 3000, Notification.Position.MIDDLE);
             }
         });
 
-        // Evento para cuando el archivo es eliminado
         upload.addFileRemovedListener(event -> {
-            avatar.setImageResource(null); // Elimina la imagen de vista previa
-            profilePictureData = null; // Limpia la imagen almacenada temporalmente
+            avatar.setImageResource(null);
+            profilePictureData = null;
         });
 
         return upload;
@@ -119,24 +123,19 @@ public class AddUserView extends Composite<VerticalLayout> {
         passwordField.clear();
         roleComboBox.clear();
         emailField.clear();
-        avatar.setImageResource(null); // Elimina la imagen de vista previa
-        profilePictureData = null;    // Limpia la imagen almacenada temporalmente
+        avatar.setImageResource(null);
+        profilePictureData = null;
     }
 
     private void saveUser(String name, String username, String password, String role, String email) {
         try {
             userService.createUser(name, username, password, email, profilePictureData, role);
-            Notification.show("Usuario guardado con éxito.", 3000, Notification.Position.MIDDLE);
-
-            // Limpiar campos después de guardar
+            Notification.show(i18nProvider.getTranslation("add_user.save_success", getLocale()), 3000, Notification.Position.MIDDLE);
             clearForm();
-
         } catch (IllegalArgumentException e) {
             Notification.show(e.getMessage(), 3000, Notification.Position.MIDDLE);
         } catch (Exception e) {
-            System.err.println("Detalles del error: " + e.getCause());
-            e.printStackTrace();
-            Notification.show("Ocurrió un error al guardar el usuario." + e.getMessage(), 3000, Notification.Position.MIDDLE);
+            Notification.show(i18nProvider.getTranslation("add_user.save_error", getLocale()) + e.getMessage(), 3000, Notification.Position.MIDDLE);
         }
     }
 }

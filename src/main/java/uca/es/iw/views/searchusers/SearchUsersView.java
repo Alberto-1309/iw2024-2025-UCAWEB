@@ -25,7 +25,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Menu;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import jakarta.annotation.security.PermitAll;
@@ -36,9 +35,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import uca.es.iw.data.User;
 import uca.es.iw.services.UserService;
+import com.vaadin.flow.i18n.I18NProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@PageTitle("Buscar Usuarios")
-@Route("search-users/:userID?/:action?(edit)")
+@Route(value = "search-users/:userID?/:action?(edit)", layout = uca.es.iw.views.MainLayout.class)
 @Menu(order = 5, icon = "line-awesome/svg/user-solid.svg")
 @RolesAllowed("ADMIN")
 @Uses(Icon.class)
@@ -53,19 +53,26 @@ public class SearchUsersView extends Div implements BeforeEnterObserver {
     private EmailField email;
     private ComboBox<String> rol;
 
-    private final Button cancel = new Button("Cancelar");
-    private final Button save = new Button("Guardar");
-    private final Button update = new Button("Actualizar promotores");
+    private final Button cancel = new Button("search_users.cancel");
+    private final Button save = new Button("search_users.search");
+    private final Button update = new Button("search_users.update");
 
     private final BeanValidationBinder<User> binder;
 
     private User user;
 
     private final UserService userService;
+    private final I18NProvider i18nProvider;
 
-    public SearchUsersView(UserService userService) {
-
+    @Autowired
+    public SearchUsersView(UserService userService, I18NProvider i18nProvider) {
         this.userService = userService;
+        this.i18nProvider = i18nProvider;
+        // Traducción de los textos de los botones
+        cancel.setText(i18nProvider.getTranslation("search_users.cancel", getLocale()));
+        save.setText(i18nProvider.getTranslation("search_users.search", getLocale()));
+        update.setText(i18nProvider.getTranslation("search_users.update", getLocale()));
+
         addClassNames("buscar-usuarios-view");
 
         // Create UI
@@ -79,14 +86,14 @@ public class SearchUsersView extends Div implements BeforeEnterObserver {
 
         grid.addColumn(new ComponentRenderer<>(user -> {
             if (user instanceof User) { // Extra seguridad para evitar errores de inferencia.
-                Anchor anchor = new Anchor(String.format("modify-user/%s", ( user).getId()), user.getUsername());
+                Anchor anchor = new Anchor(String.format("modify-user/%s", (user).getId()), user.getUsername());
                 anchor.getElement().setAttribute("theme", "tertiary");
                 return anchor;
             }
             return null; // En caso de que no sea un usuario válido.
-        })).setHeader("Nombre de usuario").setAutoWidth(true);
-        grid.addColumn("email").setHeader("Correo Electrónico").setAutoWidth(true);
-        grid.addColumn("roles").setHeader("Rol").setAutoWidth(true);
+        })).setHeader(i18nProvider.getTranslation("search_users.username", getLocale())).setAutoWidth(true);
+        grid.addColumn("email").setHeader(i18nProvider.getTranslation("search_users.email", getLocale())).setAutoWidth(true);
+        grid.addColumn("roles").setHeader(i18nProvider.getTranslation("search_users.role", getLocale())).setAutoWidth(true);
 
         grid.setItems(query -> userService.list(
                         PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
@@ -128,7 +135,7 @@ public class SearchUsersView extends Div implements BeforeEnterObserver {
 
         update.addClickListener(e -> {
             userService.syncSponsors();
-            Notification.show("Promotores actualizados", 3000, Position.BOTTOM_START);
+            Notification.show(i18nProvider.getTranslation("search_users.sponsors_updated", getLocale()), 3000, Position.BOTTOM_START);
             UI.getCurrent().getPage().reload();
         });
     }
@@ -142,15 +149,13 @@ public class SearchUsersView extends Div implements BeforeEnterObserver {
                 populateForm(userFromBackend.get());
             } else {
                 Notification.show(
-                        String.format("No se encontró el usuario solicitado, ID = %s", userId.get()),
+                        String.format(i18nProvider.getTranslation("search_users.user_not_found", getLocale()), userId.get()),
                         3000, Notification.Position.BOTTOM_START);
                 refreshGrid();
                 event.forwardTo(SearchUsersView.class);
             }
         }
     }
-
-
 
     private void createEditorLayout(SplitLayout splitLayout) {
         Div editorLayoutDiv = new Div();
@@ -161,9 +166,8 @@ public class SearchUsersView extends Div implements BeforeEnterObserver {
         editorLayoutDiv.add(editorDiv);
 
         FormLayout formLayout = new FormLayout();
-        nombre = new TextField("Nombre");
-        email = new EmailField("Correo Electrónico");
-
+        nombre = new TextField(i18nProvider.getTranslation("search_users.name", getLocale()));
+        email = new EmailField(i18nProvider.getTranslation("search_users.email", getLocale()));
 
         formLayout.add(nombre, email);
 
@@ -172,7 +176,6 @@ public class SearchUsersView extends Div implements BeforeEnterObserver {
 
         splitLayout.addToSecondary(editorLayoutDiv);
     }
-
 
     private void createButtonLayout(Div editorLayoutDiv) {
         HorizontalLayout buttonLayout = new HorizontalLayout();
@@ -190,7 +193,6 @@ public class SearchUsersView extends Div implements BeforeEnterObserver {
         wrapper.add(grid);
         update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         wrapper.add(update);
-
     }
 
     private void refreshGrid() {
@@ -206,6 +208,4 @@ public class SearchUsersView extends Div implements BeforeEnterObserver {
         this.user = value;
         binder.readBean(this.user);
     }
-
-
 }

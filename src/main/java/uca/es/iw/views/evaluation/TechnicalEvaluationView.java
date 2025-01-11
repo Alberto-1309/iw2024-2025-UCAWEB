@@ -16,17 +16,16 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
 import jakarta.annotation.security.RolesAllowed;
 import uca.es.iw.services.ProyectoService;
+import com.vaadin.flow.i18n.I18NProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@PageTitle("Evaluación técnica")
-@Route("technicalevaluation")
+@Route(value = "technicalevaluation", layout = uca.es.iw.views.MainLayout.class)
 @Menu(order = 7, icon = "line-awesome/svg/clipboard-list-solid.svg")
 @RolesAllowed("OTP")
 public class TechnicalEvaluationView extends Composite<VerticalLayout> {
@@ -37,40 +36,42 @@ public class TechnicalEvaluationView extends Composite<VerticalLayout> {
     }
 
     ProyectoService proyectoService;
+    private final I18NProvider i18nProvider;
 
-    public TechnicalEvaluationView(ProyectoService proyectoService) {
+    public TechnicalEvaluationView(ProyectoService proyectoService, I18NProvider i18nProvider) {
         this.proyectoService = proyectoService;
+        this.i18nProvider = i18nProvider;
 
         VerticalLayout layoutColumn2 = new VerticalLayout();
         FormLayout formLayout2Col = new FormLayout();
         ComboBox<String> comboBox = new ComboBox<>();
         Hr hr = new Hr();
-        H2 h2 = new H2();
+        H2 h2 = new H2(i18nProvider.getTranslation("technical_evaluation.title", getLocale()));
         Hr hr2 = new Hr();
         ComboBox<Integer> comboBox2 = new ComboBox<>();
         Hr hr3 = new Hr();
-        H2 h22 = new H2();
+        H2 h22 = new H2(i18nProvider.getTranslation("technical_evaluation.management_and_support", getLocale()));
         Hr hr4 = new Hr();
         ComboBox<Integer> comboBox3 = new ComboBox<>();
         HorizontalLayout layoutRow = new HorizontalLayout();
-        Button buttonPrimary = new Button();
+        Button buttonPrimary = new Button(i18nProvider.getTranslation("technical_evaluation.save_button", getLocale()));
 
         // Nuevo botón de descarga
-        Button downloadButton = new Button("Descargar memoria");
+        Button downloadButton = new Button(i18nProvider.getTranslation("technical_evaluation.download_memory", getLocale()));
         downloadButton.setEnabled(false); // Inicialmente deshabilitado
         downloadButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        Button downloadButton2 = new Button("Descargar documento especificaciones técnicas");
+        Button downloadButton2 = new Button(i18nProvider.getTranslation("technical_evaluation.download_specifications", getLocale()));
         downloadButton2.setEnabled(false); // Inicialmente deshabilitado
         downloadButton2.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         // Añadir Span para mostrar la calificación técnica
-        Span calificacionTecnicaLabel = new Span("Calificación técnica: Sin calificar");
+        Span calificacionTecnicaLabel = new Span(i18nProvider.getTranslation("technical_evaluation.rating", getLocale()));
         calificacionTecnicaLabel.setVisible(false);  // Inicialmente oculto
 
         getContent().setWidth("100%");
         getContent().getStyle().set("flex-grow", "1");
-        getContent().setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        getContent().setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         getContent().setAlignItems(Alignment.CENTER);
 
         layoutColumn2.setWidthFull();
@@ -80,7 +81,7 @@ public class TechnicalEvaluationView extends Composite<VerticalLayout> {
         layoutColumn2.setHeight("min-content");
 
         formLayout2Col.setWidth("100%");
-        comboBox.setLabel("Selecciona un proyecto para evaluar");
+        comboBox.setLabel(i18nProvider.getTranslation("technical_evaluation.select_project", getLocale()));
         comboBox.setWidth("min-content");
 
         // Llenar ComboBox con datos de proyectos
@@ -100,9 +101,9 @@ public class TechnicalEvaluationView extends Composite<VerticalLayout> {
                 // Obtener la calificación técnica desde el servicio (si existe)
                 Double calTecnica = proyectoService.getCalificacionTecnica(selectedProject);
                 if (calTecnica != null) {
-                    calificacionTecnicaLabel.setText("Calificación técnica: " + calTecnica);
+                    calificacionTecnicaLabel.setText(i18nProvider.getTranslation("technical_evaluation.rating_text", getLocale()) + calTecnica);
                 } else {
-                    calificacionTecnicaLabel.setText("Calificación técnica: Sin calificar");
+                    calificacionTecnicaLabel.setText(i18nProvider.getTranslation("technical_evaluation.rating_not_assigned", getLocale()));
                 }
             } else {
                 // Ocultar el Span si no hay proyecto seleccionado
@@ -120,9 +121,9 @@ public class TechnicalEvaluationView extends Composite<VerticalLayout> {
                                 "if (response.ok) {" +
                                 "    window.open($0, '_blank');" +
                                 "} else {" +
-                                "    $1.$server.showNotification('La memoria no está disponible para el proyecto seleccionado.');" +
+                                "    $1.$server.showNotification($2);" +
                                 "}});",
-                        downloadUrl, getElement());
+                        downloadUrl, getElement(), i18nProvider.getTranslation("technical_evaluation.memory_not_available", getLocale()));
             }
         });
 
@@ -136,46 +137,44 @@ public class TechnicalEvaluationView extends Composite<VerticalLayout> {
                                 "if (response.ok) {" +
                                 "    window.open($0, '_blank');" +
                                 "} else {" +
-                                "    $1.$server.showNotification('Las especificaciones no están disponibles para el proyecto seleccionado.');" +
+                                "    $1.$server.showNotification($2);" +
                                 "}});",
-                        downloadUrl, getElement());
+                        downloadUrl, getElement(), i18nProvider.getTranslation("technical_evaluation.specifications_not_available", getLocale()));
             }
         });
 
-
-
-        h2.setText("Calidad del producto");
+        h2.setText(i18nProvider.getTranslation("technical_evaluation.product_quality", getLocale()));
         layoutColumn2.setAlignSelf(Alignment.CENTER, h2);
         h2.setWidth("max-content");
 
         // Añadir subcategorías para la calidad del producto
-        ComboBox<Integer> calidadAdecuacionFuncional = new ComboBox<>("Adecuación Funcional");
+        ComboBox<Integer> calidadAdecuacionFuncional = new ComboBox<>(i18nProvider.getTranslation("technical_evaluation.functional_adequacy", getLocale()));
         calidadAdecuacionFuncional.setItems(getNumericOptions());
-        ComboBox<Integer> calidadMantenibilidad = new ComboBox<>("Mantenibilidad");
+        ComboBox<Integer> calidadMantenibilidad = new ComboBox<>(i18nProvider.getTranslation("technical_evaluation.maintainability", getLocale()));
         calidadMantenibilidad.setItems(getNumericOptions());
-        ComboBox<Integer> calidadPortabilidad = new ComboBox<>("Portabilidad");
+        ComboBox<Integer> calidadPortabilidad = new ComboBox<>(i18nProvider.getTranslation("technical_evaluation.portability", getLocale()));
         calidadPortabilidad.setItems(getNumericOptions());
-        ComboBox<Integer> calidadEficiencia = new ComboBox<>("Eficiencia");
+        ComboBox<Integer> calidadEficiencia = new ComboBox<>(i18nProvider.getTranslation("technical_evaluation.efficiency", getLocale()));
         calidadEficiencia.setItems(getNumericOptions());
-        ComboBox<Integer> calidadUsabilidad = new ComboBox<>("Usabilidad");
+        ComboBox<Integer> calidadUsabilidad = new ComboBox<>(i18nProvider.getTranslation("technical_evaluation.usability", getLocale()));
         calidadUsabilidad.setItems(getNumericOptions());
-        ComboBox<Integer> calidadCompatibilidad = new ComboBox<>("Compatibilidad");
+        ComboBox<Integer> calidadCompatibilidad = new ComboBox<>(i18nProvider.getTranslation("technical_evaluation.compatibility", getLocale()));
         calidadCompatibilidad.setItems(getNumericOptions());
-        ComboBox<Integer> calidadSeguridad = new ComboBox<>("Seguridad");
+        ComboBox<Integer> calidadSeguridad = new ComboBox<>(i18nProvider.getTranslation("technical_evaluation.security", getLocale()));
         calidadSeguridad.setItems(getNumericOptions());
 
-        h22.setText("Gestión y soporte");
+        h22.setText(i18nProvider.getTranslation("technical_evaluation.management_support", getLocale()));
         layoutColumn2.setAlignSelf(Alignment.CENTER, h22);
         h22.setWidth("max-content");
 
         // Añadir subcategorías para la gestión y soporte
-        ComboBox<Integer> gestionGarantia = new ComboBox<>("Garantía");
+        ComboBox<Integer> gestionGarantia = new ComboBox<>(i18nProvider.getTranslation("technical_evaluation.warranty", getLocale()));
         gestionGarantia.setItems(getNumericOptions());
-        ComboBox<Integer> gestionTiempoRespuesta = new ComboBox<>("Tiempos de Respuesta");
+        ComboBox<Integer> gestionTiempoRespuesta = new ComboBox<>(i18nProvider.getTranslation("technical_evaluation.response_time", getLocale()));
         gestionTiempoRespuesta.setItems(getNumericOptions());
-        ComboBox<Integer> gestionAtencionCliente = new ComboBox<>("Atención al Cliente");
+        ComboBox<Integer> gestionAtencionCliente = new ComboBox<>(i18nProvider.getTranslation("technical_evaluation.customer_service", getLocale()));
         gestionAtencionCliente.setItems(getNumericOptions());
-        ComboBox<Integer> gestionDocumentacion = new ComboBox<>("Documentación Técnica");
+        ComboBox<Integer> gestionDocumentacion = new ComboBox<>(i18nProvider.getTranslation("technical_evaluation.documentation", getLocale()));
         gestionDocumentacion.setItems(getNumericOptions());
 
         layoutRow.setWidthFull();
@@ -184,9 +183,6 @@ public class TechnicalEvaluationView extends Composite<VerticalLayout> {
         layoutRow.setWidth("100%");
         layoutRow.setHeight("min-content");
 
-        buttonPrimary.setText("Guardar");
-        buttonPrimary.setWidth("min-content");
-        buttonPrimary.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonPrimary.addClickListener(e -> {
             String selectedProject = comboBox.getValue();
 
@@ -206,7 +202,7 @@ public class TechnicalEvaluationView extends Composite<VerticalLayout> {
 
             // Validar que se hayan seleccionado todos los campos
             if (selectedProject == null) {
-                Notification.show("Por favor, selecciona un proyecto.", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("technical_evaluation.select_project_error", getLocale()), 3000, Notification.Position.MIDDLE);
                 return;
             }
 
@@ -214,7 +210,7 @@ public class TechnicalEvaluationView extends Composite<VerticalLayout> {
             if (calAdecuacion == null || calMantenibilidad == null || calPortabilidad == null ||
                     calEficiencia == null || calUsabilidad == null || calCompatibilidad == null || calSeguridad == null ||
                     gesGarantia == null || gesTiempoRespuesta == null || gesAtencionCliente == null || gesDocumentacion == null) {
-                Notification.show("Por favor, completa todas las calificaciones.", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("technical_evaluation.complete_all_ratings", getLocale()), 3000, Notification.Position.MIDDLE);
                 return;
             }
 
@@ -224,7 +220,7 @@ public class TechnicalEvaluationView extends Composite<VerticalLayout> {
 
             try {
                 proyectoService.updateCalTecnica(selectedProject, calTecnica);
-                Notification.show("Calificación técnica actualizada correctamente.", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("technical_evaluation.save_success", getLocale()), 3000, Notification.Position.MIDDLE);
 
                 // Limpiar los campos después de la acción
                 comboBox.clear();
@@ -241,10 +237,16 @@ public class TechnicalEvaluationView extends Composite<VerticalLayout> {
                 gestionDocumentacion.clear();
                 calificacionTecnicaLabel.setVisible(false); // Ocultar el Span de calificación después de la acción
             } catch (Exception ex) {
-                Notification.show("Error al actualizar la calificación: " + ex.getMessage(), 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("technical_evaluation.save_error", getLocale()), 3000, Notification.Position.MIDDLE);
             }
         });
 
+        // Estructura de diseño
+        layoutColumn2.add(h2, formLayout2Col, hr, h22, formLayout2Col, hr4, buttonPrimary, downloadButton, downloadButton2, calificacionTecnicaLabel);
+        layoutColumn2.setAlignItems(Alignment.CENTER);
+
+        // Asignar el layout final
+        getContent().add(layoutColumn2);
         getContent().add(layoutColumn2);
         layoutColumn2.add(formLayout2Col);
         formLayout2Col.add(comboBox);
@@ -273,10 +275,8 @@ public class TechnicalEvaluationView extends Composite<VerticalLayout> {
     }
 
     private List<Integer> getNumericOptions() {
-        int start = 0;
-        int end = 10;
         List<Integer> options = new ArrayList<>();
-        for (int i = start; i <= end; i++) {
+        for (int i = 0; i <= 10; i++) {
             options.add(i);
         }
         return options;

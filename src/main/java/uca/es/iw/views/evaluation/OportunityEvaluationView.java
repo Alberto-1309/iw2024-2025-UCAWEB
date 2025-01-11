@@ -22,17 +22,17 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
 import uca.es.iw.services.ProyectoService;
+import com.vaadin.flow.i18n.I18NProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@PageTitle("Evaluación de oportunidad")
-@Route("oportunityevaluation")
+@Route(value = "oportunityevaluation", layout = uca.es.iw.views.MainLayout.class)
 @Menu(order = 8, icon = "line-awesome/svg/clipboard-list-solid.svg")
 @RolesAllowed("CIO")
 public class OportunityEvaluationView extends Composite<VerticalLayout> {
-
+    private final I18NProvider i18nProvider;
     @ClientCallable
     public void showNotification(String message) {
         Notification.show(message, 3000, Notification.Position.MIDDLE);
@@ -40,8 +40,9 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
 
     ProyectoService proyectoService;
 
-    public OportunityEvaluationView(ProyectoService proyectoService) {
+    public OportunityEvaluationView(ProyectoService proyectoService, I18NProvider i18nProvider) {
         this.proyectoService = proyectoService;
+        this.i18nProvider = i18nProvider;
 
         VerticalLayout layoutColumn2 = new VerticalLayout();
         FormLayout formLayout2Col = new FormLayout();
@@ -65,16 +66,16 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
         Button buttonPrimary = new Button();
 
         // Nuevo botón de descarga
-        Button downloadButton = new Button("Descargar memoria");
+        Button downloadButton = new Button(i18nProvider.getTranslation("oportunity.download.memory", getLocale()));
         downloadButton.setEnabled(false); // Inicialmente deshabilitado
         downloadButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        Button downloadButton2 = new Button("Descargar documento de especificaciones técnicas");
+        Button downloadButton2 = new Button(i18nProvider.getTranslation("oportunity.download.specifications", getLocale()));
         downloadButton2.setEnabled(false); // Inicialmente deshabilitado
         downloadButton2.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         // Añadir Span para mostrar la calificación de oportunidad
-        Span calificacionOportunidadLabel = new Span("Calificación de oportunidad: Sin calificar");
+        Span calificacionOportunidadLabel = new Span(i18nProvider.getTranslation("oportunity.rating.not.qualified", getLocale()));
         calificacionOportunidadLabel.setVisible(false);  // Inicialmente oculto
 
         getContent().setWidth("100%");
@@ -89,7 +90,7 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
         layoutColumn2.setHeight("min-content");
 
         formLayout2Col.setWidth("100%");
-        comboBox.setLabel("Selecciona un proyecto para evaluar");
+        comboBox.setLabel(i18nProvider.getTranslation("oportunity.select.project", getLocale()));
         comboBox.setWidth("min-content");
 
         // Llenar ComboBox con datos de proyectos
@@ -150,37 +151,37 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
             }
         });
 
-        h2.setText("Necesidad y urgencia");
+        h2.setText(i18nProvider.getTranslation("oportunity.need.and.urgency", getLocale()));
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h2);
         h2.setWidth("max-content");
 
         // Añadir campos de evaluación para "Necesidad y urgencia"
-        ComboBox<Integer> necesidadImportancia = new ComboBox<>("Importancia de la necesidad");
+        ComboBox<Integer> necesidadImportancia = new ComboBox<>(i18nProvider.getTranslation("oportunity.need.importance", getLocale()));
         necesidadImportancia.setItems(getNumericOptions());
         necesidadImportancia.setWidth("400px");
-        ComboBox<Integer> necesidadUrgencia = new ComboBox<>("Urgencia de la necesidad");
+        ComboBox<Integer> necesidadUrgencia = new ComboBox<>(i18nProvider.getTranslation("oportunity.need.urgency", getLocale()));
         necesidadUrgencia.setItems(getNumericOptions());
         necesidadUrgencia.setWidth("400px");
 
-        h22.setText("Alineación con los objetivos estratégicos");
+        h22.setText(i18nProvider.getTranslation("oportunity.alignment.objectives", getLocale()));
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h22);
         h22.setWidth("max-content");
 
-        h23.setText("Impacto y beneficios");
+        h23.setText(i18nProvider.getTranslation("oportunity.impact.benefits", getLocale()));
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h23);
         h23.setWidth("max-content");
 
-        h24.setText("Riesgos y complejidad");
+        h24.setText(i18nProvider.getTranslation("oportunity.risks.complexity", getLocale()));
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h24);
         h24.setWidth("max-content");
 
-        h25.setText("Memoria e hitos");
+        h25.setText(i18nProvider.getTranslation("oportunity.memory.milestones", getLocale()));
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h25);
         h25.setWidth("max-content");
 
         // Añadir checkbox group para "Alineación con los objetivos estratégicos"
         CheckboxGroup<String> checkboxGroup = new CheckboxGroup<>();
-        checkboxGroup.setLabel("Alineamiento con los objetivos estratégicos:");
+        checkboxGroup.setLabel(i18nProvider.getTranslation("oportunity.alignment.objectives.group", getLocale()));
         checkboxGroup.setWidth("600px");
         checkboxGroup.setItems(
                 "Innovar, rediseñar y actualizar nuestra oferta formativa para adaptarla a las necesidades sociales y económicas de nuestro entorno.",
@@ -195,7 +196,7 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
 
         // Más campos de evaluación...
         // Impacto y beneficios
-        ComboBox<String> impactoPersonas = new ComboBox<>("Nº de personas afectadas");
+        ComboBox<String> impactoPersonas = new ComboBox<>(i18nProvider.getTranslation("oportunity.impact.people", getLocale()));
         impactoPersonas.setItems(
                 "1 a 50",
                 "50 a 500",
@@ -204,7 +205,7 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
                 "10000 o más"
         );
         impactoPersonas.setWidth("400px");
-        ComboBox<String> ahorroMejoras = new ComboBox<>("Ahorros y/o mejora de calidad de la gestión");
+        ComboBox<String> ahorroMejoras = new ComboBox<>(i18nProvider.getTranslation("oportunity.savings.quality.improvement", getLocale()));
         ahorroMejoras.setItems(
                 "Sin impacto notable",
                 "Impacto leve",
@@ -215,7 +216,7 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
         ahorroMejoras.setWidth("400px");
 
         // Riesgos y complejidad
-        ComboBox<String> riesgosComplejidad = new ComboBox<>("Riesgos y complejidad");
+        ComboBox<String> riesgosComplejidad = new ComboBox<>(i18nProvider.getTranslation("oportunity.risks.complexity", getLocale()));
         riesgosComplejidad.setItems(
                 "Sin dificultades",
                 "Dificultades leves",
@@ -224,7 +225,7 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
                 "Dificultades críticas"
         );
         riesgosComplejidad.setWidth("400px");
-        ComboBox<String> dimensionSostenibilidad = new ComboBox<>("Dimensión y sostenibilidad");
+        ComboBox<String> dimensionSostenibilidad = new ComboBox<>(i18nProvider.getTranslation("oportunity.dimension.sustainability", getLocale()));
         dimensionSostenibilidad.setItems(
                 "Muy bajo",
                 "Bajo",
@@ -235,7 +236,7 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
         dimensionSostenibilidad.setWidth("400px");
 
         // Memoria e hitos
-        ComboBox<String> memoriaCompleta = new ComboBox<>("La memoria es completa");
+        ComboBox<String> memoriaCompleta = new ComboBox<>(i18nProvider.getTranslation("oportunity.memory.complete", getLocale()));
         memoriaCompleta.setItems(
                 "Incompleta",
                 "Pácticamente incompleta",
@@ -244,7 +245,7 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
                 "Completa"
         );
         memoriaCompleta.setWidth("400px");
-        ComboBox<String> hitosClaros = new ComboBox<>("Hitos claros y medibles con metas realistas *");
+        ComboBox<String> hitosClaros = new ComboBox<>(i18nProvider.getTranslation("oportunity.clear.milestones", getLocale()));
         hitosClaros.setItems(
                 "Nada claros",
                 "Incompletos",
@@ -260,7 +261,7 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
         layoutRow.setWidth("100%");
         layoutRow.setHeight("min-content");
 
-        buttonPrimary.setText("Guardar");
+        buttonPrimary.setText(i18nProvider.getTranslation("oportunity.save", getLocale()));
         buttonPrimary.setWidth("min-content");
         buttonPrimary.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         buttonPrimary.addClickListener(e -> {
@@ -327,12 +328,12 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
 
             // Validar que se hayan seleccionado todos los campos
             if (selectedProject == null) {
-                Notification.show("Por favor, selecciona un proyecto.", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("notification.select.project", getLocale()), 3000, Notification.Position.MIDDLE);
                 return;
             }
 
             if (importancia == null || urgencia == null || impacto == null || ahorro == null || riesgos == null || dimension == null || memoria == null) {
-                Notification.show("Por favor, completa todas las calificaciones.", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("notification.complete.all.ratings", getLocale()), 3000, Notification.Position.MIDDLE);
                 return;
             }
 
@@ -343,7 +344,7 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
 
             try {
                 proyectoService.updateCalOportunidad(selectedProject, calOportunidad);
-                Notification.show("Calificación de oportunidad actualizada correctamente.", 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("notification.oportunity.rating.updated", getLocale()), 3000, Notification.Position.MIDDLE);
 
                 // Limpiar los campos después de la acción
                 comboBox.clear();
@@ -358,7 +359,7 @@ public class OportunityEvaluationView extends Composite<VerticalLayout> {
                 checkboxGroup.clear();
                 calificacionOportunidadLabel.setVisible(false);
             } catch (Exception ex) {
-                Notification.show("Error al actualizar la calificación: " + ex.getMessage(), 3000, Notification.Position.MIDDLE);
+                Notification.show(i18nProvider.getTranslation("notification.error.saving.data", getLocale()), 3000, Notification.Position.MIDDLE);
             }
         });
 

@@ -32,7 +32,7 @@ public class UserService {
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService; // Declaración de EmailService
+    private final EmailService emailService;
 
     private static final String SPONSORS_URL = "https://e608f590-1a0b-43c5-b363-e5a883961765.mock.pstmn.io/sponsors";
     @Autowired

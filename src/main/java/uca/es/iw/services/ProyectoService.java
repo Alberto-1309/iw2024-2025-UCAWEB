@@ -26,19 +26,21 @@ public class ProyectoService {
 
     private final AuthenticatedUser authenticatedUser;
 
-    private final ConvocatoriaRepository convocatoriaRepository; // Agregado
-
+    private final ConvocatoriaRepository convocatoriaRepository;
+    private final EmailService emailService;
     private Long currentUserId;
 
     public ProyectoService(ProyectoRepository proyectoRepository, UserRepository userRepository,
                            PonderacionesRepository ponderacionesRepository,
-                           ConvocatoriaRepository convocatoriaRepository,  // Agregado
-                           AuthenticatedUser authenticatedUser) {
+                           ConvocatoriaRepository convocatoriaRepository,
+                           AuthenticatedUser authenticatedUser,
+                           EmailService emailService) {
         this.proyectoRepository = proyectoRepository;
         this.userRepository = userRepository;
         this.ponderacionesRepository = ponderacionesRepository;
         this.authenticatedUser = authenticatedUser;
-        this.convocatoriaRepository = convocatoriaRepository; // Initialize convocatoriaRepository
+        this.convocatoriaRepository = convocatoriaRepository;
+        this.emailService = emailService;
     }
 
     public Proyecto guardarProyecto(String titulo, String nombrecorto, byte[] memoria, String nombresolicitante, String correo, String unidad, String select, int importancia, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues, byte[] especificaciones, byte[] presupuesto, Convocatoria convocatoria) {
@@ -88,6 +90,7 @@ public class ProyectoService {
 
         proyecto.setEspecificaciones(especificaciones);
         proyecto.setPresupuestos(presupuesto);
+        sendProjectRequestEmail(proyecto);
         return proyectoRepository.save(proyecto);
     }
 
@@ -380,5 +383,21 @@ public class ProyectoService {
         LocalDate hoy = LocalDate.now();
         return convocatoriaRepository.findByFechaAperturaBeforeAndFechaCierreAfter(hoy, hoy)
                 .orElseThrow(() -> new IllegalArgumentException("No hay convocatorias activas actualmente."));
+    }
+    private void sendProjectRequestEmail(Proyecto proyecto) {
+        String subject = "¡Proyecto solicitado exitosamente!";
+        String body = "Hola " + proyecto.getNombreSolicitante() + ",\n\n" +
+                "Tu proyecto con el título '" + proyecto.getTitulo() + "' ha sido solicitado exitosamente. " +
+                "Nos pondremos en contacto contigo próximamente para informarte sobre su estado.\n\n" +
+                "¡Gracias por confiar en nuestra plataforma!\n\n" +
+                "Saludos,\nEl equipo.";
+
+        emailService.sendEmail(proyecto.getCorreoSolicitante(), subject, body);
+    }
+    public List<Proyecto> searchProjectsByConvocatoria(Convocatoria convocatoria) {
+        return proyectoRepository.findByConvocatoria(convocatoria);  // Requiere un repositorio adecuado que implemente el filtro
+    }
+    public List<Convocatoria> getAllConvocatorias() {
+        return convocatoriaRepository.findAll();
     }
 }

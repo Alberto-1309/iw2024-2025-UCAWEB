@@ -1,6 +1,7 @@
 package uca.es.iw.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uca.es.iw.data.Convocatoria;
 import uca.es.iw.data.ConvocatoriaRepository;
@@ -22,14 +23,12 @@ public class ConvocatoriaService {
     private UserService userService;
     // Crear una nueva convocatoria
     public Convocatoria createConvocatoria(String nombre, String objetivo, LocalDate fechaApertura,
-                                           LocalDate fechaCierre, double presupuestoTotal, int cupoRecursosHumanos) {
+                                           LocalDate fechaCierre) {
         Convocatoria convocatoria = new Convocatoria();
         convocatoria.setNombre(nombre);
         convocatoria.setObjetivo(objetivo);
         convocatoria.setFechaApertura(fechaApertura);
         convocatoria.setFechaCierre(fechaCierre);
-        convocatoria.setPresupuestoTotal(presupuestoTotal);
-        convocatoria.setCupoRecursosHumanos(cupoRecursosHumanos);
         Convocatoria savedConvocatoria = convocatoriaRepository.save(convocatoria);
         sendCreationEmailToUsers(savedConvocatoria);
         return savedConvocatoria;
@@ -53,14 +52,12 @@ public class ConvocatoriaService {
     }
     //Modificar una convocatoria
     public Convocatoria updateConvocatoria(Long id, String nombre, String objetivo, LocalDate fechaApertura,
-                                           LocalDate fechaCierre, double presupuestoTotal, int cupoRecursosHumanos) {
+                                           LocalDate fechaCierre) {
         Convocatoria convocatoria = getConvocatoriaById(id);
         convocatoria.setNombre(nombre);
         convocatoria.setObjetivo(objetivo);
         convocatoria.setFechaApertura(fechaApertura);
         convocatoria.setFechaCierre(fechaCierre);
-        convocatoria.setPresupuestoTotal(presupuestoTotal);
-        convocatoria.setCupoRecursosHumanos(cupoRecursosHumanos);
         Convocatoria updatedConvocatoria = convocatoriaRepository.save(convocatoria);
         sendUpdateEmailToUsers(updatedConvocatoria);
         return updatedConvocatoria;
@@ -87,6 +84,16 @@ public class ConvocatoriaService {
                 "Saludos,\nEl equipo.";
 
         sendEmailToUsers(subject, body);
+    }
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void checkAndNotifyEndedConvocatorias() {
+        List<Convocatoria> convocatorias = convocatoriaRepository.findAll();
+        LocalDate yesterday = LocalDate.now().minusDays(1);  // Obtener el día de ayer
+        for (Convocatoria convocatoria : convocatorias) {
+            if (convocatoria.getFechaCierre().equals(yesterday)) {
+                notifyDeadlineEnd(convocatoria);
+            }
+        }
     }
     //Aviso el dia finalizacion de convocatoria
     public void notifyDeadlineEnd(Convocatoria convocatoria) {

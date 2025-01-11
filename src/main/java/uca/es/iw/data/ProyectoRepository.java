@@ -12,8 +12,8 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long>, JpaSp
     @Query(value = """
 
     SELECT nombre_corto
-    FROM Proyecto
-    WHERE estado = 'PENDIENTE'
+    FROM proyecto
+    WHERE estado = 'AVALADO'
     ORDER BY nombre_corto ASC;
     """, nativeQuery = true)
     List<String> findPendingProjects();
@@ -27,5 +27,7 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long>, JpaSp
     Optional<Proyecto> findById(long id);
 
     List<Proyecto> findByCreadoId(Long creadoId);
+
+    List<Proyecto> findByConvocatoria(Convocatoria convocatoria);
 
 }
