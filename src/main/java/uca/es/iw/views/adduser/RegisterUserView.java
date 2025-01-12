@@ -44,7 +44,7 @@ public class RegisterUserView extends Composite<VerticalLayout> implements Befor
 
     private TextField nameField;
     private TextField usernameField;
-    private PasswordField passwordField;
+    private PasswordField passwordField, confirmPasswordField;
     private String role;
     private EmailField emailField;
 
@@ -60,6 +60,7 @@ public class RegisterUserView extends Composite<VerticalLayout> implements Befor
         nameField = new TextField(i18nProvider.getTranslation("add_user.name", getLocale()));
         usernameField = new TextField(i18nProvider.getTranslation("add_user.username", getLocale()));
         passwordField = new PasswordField(i18nProvider.getTranslation("add_user.password", getLocale()));
+        confirmPasswordField = new PasswordField(i18nProvider.getTranslation("add_user.confirm_password", getLocale()));
         role = "USER";
         emailField = new EmailField(i18nProvider.getTranslation("add_user.email", getLocale()));
 
@@ -70,15 +71,27 @@ public class RegisterUserView extends Composite<VerticalLayout> implements Befor
 
         Button saveButton = new Button(i18nProvider.getTranslation("add_user.save", getLocale()));
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        saveButton.addClickListener(event -> saveUser(
-                nameField.getValue(),
-                usernameField.getValue(),
-                passwordField.getValue(),
-                role,
-                emailField.getValue()
-        ));
+        saveButton.addClickListener(event -> {
+            // Validación de contraseñas
+            if (!passwordField.getValue().equals(confirmPasswordField.getValue())) {
+                Notification.show(
+                        i18nProvider.getTranslation("add_user.password_mismatch", getLocale()),
+                        3000,
+                        Notification.Position.MIDDLE
+                );
+                return;
+            }
 
-        formLayout.add(nameField, usernameField, passwordField, emailField);
+            saveUser(
+                    nameField.getValue(),
+                    usernameField.getValue(),
+                    passwordField.getValue(),
+                    role,
+                    emailField.getValue()
+            );
+        });
+
+        formLayout.add(nameField, usernameField, passwordField, confirmPasswordField, emailField);
         layoutColumn2.add(h3, formLayout, avatar, upload, saveButton);
 
         getContent().add(layoutColumn2);
@@ -122,6 +135,7 @@ public class RegisterUserView extends Composite<VerticalLayout> implements Befor
         nameField.clear();
         usernameField.clear();
         passwordField.clear();
+        confirmPasswordField.clear();
         emailField.clear();
         avatar.setImageResource(null);
         profilePictureData = null;
