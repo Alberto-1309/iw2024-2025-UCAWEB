@@ -43,6 +43,7 @@ public class AddUserView extends Composite<VerticalLayout> {
     private TextField nameField;
     private TextField usernameField;
     private PasswordField passwordField;
+    private PasswordField confirmPasswordField; // Nuevo campo
     private ComboBox<String> roleComboBox;
     private EmailField emailField;
 
@@ -57,6 +58,7 @@ public class AddUserView extends Composite<VerticalLayout> {
         nameField = new TextField(i18nProvider.getTranslation("add_user.name", getLocale()));
         usernameField = new TextField(i18nProvider.getTranslation("add_user.username", getLocale()));
         passwordField = new PasswordField(i18nProvider.getTranslation("add_user.password", getLocale()));
+        confirmPasswordField = new PasswordField(i18nProvider.getTranslation("add_user.confirm_password", getLocale())); // Confirmar contraseña
         roleComboBox = new ComboBox<>(i18nProvider.getTranslation("add_user.role", getLocale()));
         emailField = new EmailField(i18nProvider.getTranslation("add_user.email", getLocale()));
 
@@ -76,15 +78,22 @@ public class AddUserView extends Composite<VerticalLayout> {
 
         Button saveButton = new Button(i18nProvider.getTranslation("add_user.save", getLocale()));
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        saveButton.addClickListener(event -> saveUser(
-                nameField.getValue(),
-                usernameField.getValue(),
-                passwordField.getValue(),
-                roleComboBox.getValue(),
-                emailField.getValue()
-        ));
+        saveButton.addClickListener(event -> {
+            // Aquí verificamos que las contraseñas coincidan
+            if (!passwordField.getValue().equals(confirmPasswordField.getValue())) {
+                Notification.show(i18nProvider.getTranslation("add_user.password_mismatch", getLocale()), 3000, Notification.Position.MIDDLE);
+                return;
+            }
+            saveUser(
+                    nameField.getValue(),
+                    usernameField.getValue(),
+                    passwordField.getValue(),
+                    roleComboBox.getValue(),
+                    emailField.getValue()
+            );
+        });
 
-        formLayout.add(nameField, usernameField, passwordField, roleComboBox, emailField);
+        formLayout.add(nameField, usernameField, passwordField, confirmPasswordField, roleComboBox, emailField);
         layoutColumn2.add(h3, formLayout, avatar, upload, saveButton);
 
         getContent().add(layoutColumn2);
@@ -121,6 +130,7 @@ public class AddUserView extends Composite<VerticalLayout> {
         nameField.clear();
         usernameField.clear();
         passwordField.clear();
+        confirmPasswordField.clear();
         roleComboBox.clear();
         emailField.clear();
         avatar.setImageResource(null);
