@@ -23,8 +23,8 @@ import uca.es.iw.views.modcall.ModifyCallView;
 import java.util.List;
 
 @Route(value = "convocatoria-management", layout = MainLayout.class)
-@Menu(order = 2, icon = "line-awesome/svg/calendar.svg")
-@RolesAllowed("ADMIN")
+@Menu(order = 11, icon = "line-awesome/svg/calendar.svg")
+@RolesAllowed("CIO")
 public class CallView extends VerticalLayout {
 
     private final ConvocatoriaService convocatoriaService;

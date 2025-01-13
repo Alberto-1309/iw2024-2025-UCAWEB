@@ -16,7 +16,7 @@ import uca.es.iw.services.ConvocatoriaService;
 import uca.es.iw.views.MainLayout;
 
 @Route(value = "modify-call", layout = MainLayout.class)
-@RolesAllowed("ADMIN")
+@RolesAllowed("CIO")
 public class ModifyCallView extends VerticalLayout implements HasUrlParameter<Long> {
 
     private final ConvocatoriaService convocatoriaService;

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @Route(value = "project-selection", layout = uca.es.iw.views.MainLayout.class)
-@Menu(order = 11, icon = "line-awesome/svg/tasks-solid.svg")
+@Menu(order = 12, icon = "line-awesome/svg/tasks-solid.svg")
 @RolesAllowed({"CIO"})
 public class ProjectSelectionView extends VerticalLayout {
 
