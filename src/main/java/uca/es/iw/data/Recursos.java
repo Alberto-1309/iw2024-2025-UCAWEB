@@ -20,6 +20,9 @@ public class Recursos {
     @Column(name = "recursosHumanosRestantes", nullable = false)
     private Integer recursosHumanosRestantes;
 
+    @Column (name = "idConvocatoria", nullable = false)
+    private Long idConvocatoria;
+
     // Getters y setters
     public Long getId() {
         return id;
@@ -59,5 +62,13 @@ public class Recursos {
 
     public void setRecursosHumanosRestantes(Integer recursosHumanosRestantes) {
         this.recursosHumanosRestantes = recursosHumanosRestantes;
+    }
+
+    public Long getIdConvocatoria() {
+        return idConvocatoria;
+    }
+
+    public void setIdConvocatoria(Long idConvocatoria) {
+        this.idConvocatoria = idConvocatoria;
     }
 }

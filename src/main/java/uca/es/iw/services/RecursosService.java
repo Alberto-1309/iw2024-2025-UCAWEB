@@ -3,6 +3,9 @@ package uca.es.iw.services;
 import org.springframework.stereotype.Service;
 import uca.es.iw.data.*;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class RecursosService {
     private final RecursosRepository recursosRepository;
@@ -40,4 +43,11 @@ public class RecursosService {
         recursosRepository.save(recursos);
     }
 
+    public Recursos getRecursosByConvocatoriaId(long id) {
+        return recursosRepository.findByIdConvocatoria(id).orElse(new Recursos());
+    }
+
+    public void saveRecursos(Recursos recursos) {
+        recursosRepository.save(recursos);
+    }
 }

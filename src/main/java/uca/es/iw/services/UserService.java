@@ -332,4 +332,7 @@ public class UserService {
         return repository.findAll(); // Recupera todos los usuarios de la base de datos
     }
 
+    public boolean confirmCurrentPassword(String currentPassword, User user) {
+        return passwordEncoder.matches(currentPassword, user.getHashedPassword());
+    }
 }

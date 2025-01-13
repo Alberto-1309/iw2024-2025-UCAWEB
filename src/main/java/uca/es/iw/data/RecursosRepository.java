@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
+
 public interface RecursosRepository extends JpaRepository<Recursos, Long>, JpaSpecificationExecutor<Recursos> {
 
     @Query(value = """
@@ -33,4 +35,8 @@ public interface RecursosRepository extends JpaRepository<Recursos, Long>, JpaSp
     WHERE id = 1;
     """, nativeQuery = true)
     Integer findRecursosHumanosRestantes();
+
+    Optional<Recursos> findByIdConvocatoria(long id);
+
+    //List<Recursos> findByIdConvocatoria(long idConvocatoria);
 }
