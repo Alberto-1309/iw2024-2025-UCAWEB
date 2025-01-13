@@ -120,7 +120,7 @@ public class ProjectSelectionView extends VerticalLayout {
     private String convertToSpanish(String state) {
         switch (state) {
             case "Pending":
-                return "Pendiente";
+                return "En curso";
             case "Accepted":
                 return "Aceptado";
             case "Rejected":
@@ -134,9 +134,10 @@ public class ProjectSelectionView extends VerticalLayout {
 
 
         if (convocatoria == null) {
-            proyectos = proyectoService.searchQualifiedProjects();
+            // No hacer nada si no hay convocatoria seleccionada
+            return;
         } else {
-            proyectos = proyectoService.searchProjectsByConvocatoria(convocatoria);
+            proyectos = proyectoService.searchProjectsByConvocatoriaAndEstado(convocatoria, "En curso");
 
             Recursos recursos = recursosRepository.findByIdConvocatoria(convocatoria.getId()).orElse(new Recursos());
 
@@ -161,7 +162,7 @@ public class ProjectSelectionView extends VerticalLayout {
         } else if ("Rechazado".equals(newState) && "Aceptado".equals(oldState)) {
             totalFinanciacionRestante += project.getFinanciacionNecesaria();
             totalRecursosRestantes += project.getRecursosHumanosNecesarios();
-        } else if ("Pendiente".equals(newState) && "Aceptado".equals(oldState)) {
+        } else if ("En curso".equals(newState) && "Aceptado".equals(oldState)) {
             totalFinanciacionRestante += project.getFinanciacionNecesaria();
             totalRecursosRestantes += project.getRecursosHumanosNecesarios();
         }

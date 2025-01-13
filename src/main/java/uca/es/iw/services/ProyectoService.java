@@ -366,8 +366,8 @@ public class ProyectoService {
             case "Rechazado":
                 proyecto.setEstado("Rechazado");
                 break;
-            case "Pendiente":
-                proyecto.setEstado("Pendiente");
+            case "En curso":
+                proyecto.setEstado("En curso");
                 break;
             default:
                 throw new IllegalArgumentException("Estado inválido: " + newStatus);
@@ -397,8 +397,8 @@ public class ProyectoService {
 
         emailService.sendEmail(proyecto.getCorreoSolicitante(), subject, body);
     }
-    public List<Proyecto> searchProjectsByConvocatoria(Convocatoria convocatoria) {
-        return proyectoRepository.findByIdConvocatoria(convocatoria.getId());
+    public List<Proyecto> searchProjectsByConvocatoriaAndEstado(Convocatoria convocatoria, String estado) {
+        return proyectoRepository.findByIdConvocatoriaAndEstadoAndCalificadoTrue(convocatoria.getId(), estado);
     }
 
     public List<Convocatoria> getAllConvocatorias() {

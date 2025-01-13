@@ -55,7 +55,8 @@ insert into user_roles (user_id, roles) values ('22', 'ADMIN');
 insert into user_roles (user_id, roles) values ('22', 'CIO');
 insert into user_roles (user_id, roles) values ('22', 'PROMOTOR');
 insert into user_roles (user_id, roles) values ('22', 'OTP');
-insert into recursos (id, presupuesto_restante, presupuesto_total, recursos_humanos_total, recursos_humanos_restantes) values (1, 5000000, 5000000, 50, 50);
+insert into recursos (id, presupuesto_restante, presupuesto_total, recursos_humanos_total, recursos_humanos_restantes, id_convocatoria) values (1, 5000000, 5000000, 50, 50, 1);
+insert into convocatoria (id, nombre, fecha_inicio, fecha_fin, objetivo) values (1, 'Convocatoria 2021', '2021-01-01', '2021-12-31', "Objetivo1");
 insert into ponderaciones (id, pon_disponibilidad, pon_oportunidad, pon_tecnica) values (1, 0.4, 0.3, 0.3);
 
 
