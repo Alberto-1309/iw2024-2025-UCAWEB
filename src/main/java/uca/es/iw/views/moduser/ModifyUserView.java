@@ -96,6 +96,8 @@ public class ModifyUserView extends Composite<VerticalLayout> implements BeforeE
         message.setText(i18nProvider.getTranslation("modify_user.message", getLocale()));
         confirmDialog.add(message);
 
+
+
         // Botón "Cancelar"
         Button cancelButton = new Button(i18nProvider.getTranslation("modify_user.cancel_button", getLocale()), e -> confirmDialog.close());
         cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);

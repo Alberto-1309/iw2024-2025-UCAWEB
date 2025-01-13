@@ -113,21 +113,9 @@ public class Proyecto {
     @Column(name = "archivado", nullable = false, columnDefinition="BOOLEAN DEFAULT false")
     private Boolean archivado;
 
-    // Relación con Convocatoria
-    @ManyToOne
-    @JoinColumn(name = "convocatoria_id", nullable = false)
-    private Convocatoria convocatoria;
+    @Column(name = "convocatoria_id", nullable = false, columnDefinition = "BIGINT")
+    private Long idConvocatoria;
 
-    // Getters y setters para Convocatoria
-    public Convocatoria getConvocatoria() {
-        return convocatoria;
-    }
-
-    public void setConvocatoria(Convocatoria convocatoria) {
-        this.convocatoria = convocatoria;
-    }
-
-    // Getters y setters restantes
     public Long getId() {
         return Id_proyecto;
     }
@@ -398,5 +386,13 @@ public class Proyecto {
 
     public void setArchivado(Boolean archivado) {
         this.archivado = archivado;
+    }
+
+    public Long getIdConvocatoria() {
+        return idConvocatoria;
+    }
+
+    public void setIdConvocatoria(Long idConvocatoria) {
+        this.idConvocatoria = idConvocatoria;
     }
 }

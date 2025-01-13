@@ -14,7 +14,7 @@ insert into application_user (version, id, email, username, name, hashed_passwor
     (1, 13, 'fernando.jimenez@university.com', 'fernando.jimenez', 'Fernando Jiménez', '$2a$10$xdbKoM48VySZqVSU/cSlVeJn0Z04XCZ7KZBjUBC00eKo5uLswyOpe', ''),
     (1, 14, 'lidia.sanchez@university.com', 'lidia.sanchez', 'Lidia Sánchez', '$2a$10$xdbKoM48VySZqVSU/cSlVeJn0Z04XCZ7KZBjUBC00eKo5uLswyOpe', ''),
     (1, 15, 'alberto.martin@university.com', 'alberto.martin', 'Alberto Martín', '$2a$10$xdbKoM48VySZqVSU/cSlVeJn0Z04XCZ7KZBjUBC00eKo5uLswyOpe', ''),
-    (1, 16, 'carmen.rodriguez@university.com', 'carmen.rodriguez', 'Carmen Rodríguez', '$2a$10$xdbKoM48VySZqVSU/cSlVeJn0Z04XCZ7KZBjUBC00eKo5uLswyOpe', ''),
+    (1, 16, 'carme  n.rodriguez@university.com', 'carmen.rodriguez', 'Carmen Rodríguez', '$2a$10$xdbKoM48VySZqVSU/cSlVeJn0Z04XCZ7KZBjUBC00eKo5uLswyOpe', ''),
     (1, 17, 'david.perez@university.com', 'david.perez', 'David Pérez', '$2a$10$xdbKoM48VySZqVSU/cSlVeJn0Z04XCZ7KZBjUBC00eKo5uLswyOpe', ''),
     (1, 18, 'esther.garcia@university.com', 'esther.garcia', 'Esther García', '$2a$10$xdbKoM48VySZqVSU/cSlVeJn0Z04XCZ7KZBjUBC00eKo5uLswyOpe', ''),
     (1, 19, 'javier.mendoza@university.com', 'javier.mendoza', 'Javier Mendoza', '$2a$10$xdbKoM48VySZqVSU/cSlVeJn0Z04XCZ7KZBjUBC00eKo5uLswyOpe', ''),
@@ -65,3 +65,5 @@ DROP TABLE user_roles;
 DROP TABLE application_user;
 DROP TABLE recursos;
 DROP TABLE ponderaciones;
+DROP TABLE proyecto;
+DROP TABLE convocatoria;
