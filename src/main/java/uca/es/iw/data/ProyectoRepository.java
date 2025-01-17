@@ -13,7 +13,7 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long>, JpaSp
 
     SELECT nombre_corto
     FROM proyecto
-    WHERE estado = 'AVALADO'
+    WHERE estado = 'En curso'
     ORDER BY nombre_corto ASC;
     """, nativeQuery = true)
     List<String> findPendingProjects();
@@ -28,6 +28,9 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long>, JpaSp
 
     List<Proyecto> findByCreadoId(Long creadoId);
 
-    List<Proyecto> findByConvocatoria(Convocatoria convocatoria);
+    List<Proyecto> findByIdConvocatoria(Long idConvocatoria);
 
+    List<Proyecto> findByIdConvocatoriaAndEstado(Long idConvocatoria, String estado);
+
+    List<Proyecto> findByIdConvocatoriaAndEstadoAndCalificadoTrue(Long idConvocatoria, String estado);
 }

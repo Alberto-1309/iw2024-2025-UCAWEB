@@ -284,7 +284,7 @@ public class NewProjectView extends Composite<VerticalLayout> {
                     checkboxGroupList,
                     especificacionesData,
                     presupuestoData,
-                    convocatoriaActual
+                    convocatoriaActual.getId()
             );
             Notification.show(i18nProvider.getTranslation("new_project.project_saved_success", getLocale()), 3000, Notification.Position.MIDDLE);
             UI.getCurrent().navigate("");

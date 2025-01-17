@@ -3,10 +3,7 @@ package uca.es.iw.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import uca.es.iw.data.Convocatoria;
-import uca.es.iw.data.ConvocatoriaRepository;
-import uca.es.iw.data.Role;
-import uca.es.iw.data.User;
+import uca.es.iw.data.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,18 +18,38 @@ public class ConvocatoriaService {
     private EmailService emailService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private RecursosService recursosService;
     // Crear una nueva convocatoria
     public Convocatoria createConvocatoria(String nombre, String objetivo, LocalDate fechaApertura,
-                                           LocalDate fechaCierre) {
+                                           LocalDate fechaCierre, double presupuesto, int recursosHumanos) {
+        // Crear la nueva convocatoria
         Convocatoria convocatoria = new Convocatoria();
         convocatoria.setNombre(nombre);
         convocatoria.setObjetivo(objetivo);
         convocatoria.setFechaApertura(fechaApertura);
         convocatoria.setFechaCierre(fechaCierre);
+
+        // Guardar la convocatoria
         Convocatoria savedConvocatoria = convocatoriaRepository.save(convocatoria);
+
+        // Crear un objeto de recursos asociado a la convocatoria
+        Recursos recursos = new Recursos();
+        recursos.setPresupuestoTotal(presupuesto);
+        recursos.setRecursosHumanos(recursosHumanos);
+        recursos.setPresupuestoRestante(presupuesto);
+        recursos.setRecursosHumanosRestantes(recursosHumanos);
+        recursos.setIdConvocatoria(savedConvocatoria.getId()); // Establecer la relación entre recursos y convocatoria
+
+        // Guardar el recurso asociado a la convocatoria
+        recursosService.saveRecursos(recursos);
+
+        // Enviar un correo electrónico de confirmación o notificación
         sendCreationEmailToUsers(savedConvocatoria);
+
         return savedConvocatoria;
     }
+
     private void sendCreationEmailToUsers(Convocatoria convocatoria) {
         String subject = "Nueva convocatoria creada: " + convocatoria.getNombre();
         String body = "Se ha creado una nueva convocatoria:\n\n" +
@@ -52,13 +69,21 @@ public class ConvocatoriaService {
     }
     //Modificar una convocatoria
     public Convocatoria updateConvocatoria(Long id, String nombre, String objetivo, LocalDate fechaApertura,
-                                           LocalDate fechaCierre) {
+                                           LocalDate fechaCierre, double presupuesto, int recursosHumanos) {
         Convocatoria convocatoria = getConvocatoriaById(id);
         convocatoria.setNombre(nombre);
         convocatoria.setObjetivo(objetivo);
         convocatoria.setFechaApertura(fechaApertura);
         convocatoria.setFechaCierre(fechaCierre);
         Convocatoria updatedConvocatoria = convocatoriaRepository.save(convocatoria);
+
+        Recursos recursos = recursosService.getRecursosByConvocatoriaId(id);
+        recursos.setPresupuestoTotal(presupuesto);
+        recursos.setRecursosHumanos(recursosHumanos);
+        recursos.setPresupuestoRestante(presupuesto);
+        recursos.setRecursosHumanosRestantes(recursosHumanos);
+        recursosService.saveRecursos(recursos);
+
         sendUpdateEmailToUsers(updatedConvocatoria);
         return updatedConvocatoria;
     }
@@ -110,8 +135,18 @@ public class ConvocatoriaService {
 
         for (User user : usersWithRoleUser) {
             if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+                if (!isValidEmail(user.getEmail())){
+                    System.out.println("Correo electrónico no válido: " + user.getEmail());
+                }
+
                 emailService.sendEmail(user.getEmail(), subject, body);
             }
         }
     }
+
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        return email != null && email.matches(emailRegex);
+    }
+
 }

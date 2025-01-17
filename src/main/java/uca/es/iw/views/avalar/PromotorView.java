@@ -112,13 +112,13 @@ public class PromotorView extends VerticalLayout {
     }
 
     private HorizontalLayout createActionButtons(Proyecto proyecto) {
-        Button avalarButton = new Button(i18nProvider.getTranslation("promotor_view.avalar", getLocale()), event -> gestionarProyecto(proyecto, "AVALADO"));
-        Button rechazarButton = new Button(i18nProvider.getTranslation("promotor_view.no_avalar", getLocale()), event -> gestionarProyecto(proyecto, "NO_AVALADO"));
+        Button avalarButton = new Button(i18nProvider.getTranslation("promotor_view.avalar", getLocale()), event -> gestionarProyecto(proyecto, "En curso"));
+        Button rechazarButton = new Button(i18nProvider.getTranslation("promotor_view.no_avalar", getLocale()), event -> gestionarProyecto(proyecto, "Rechazado"));
 
         return new HorizontalLayout(avalarButton, rechazarButton);
     }
 
-    @Transactional
+
     private void gestionarProyecto(Proyecto proyecto, String nuevoEstado) {
         proyecto.setEstado(nuevoEstado);
         proyectoRepository.save(proyecto);

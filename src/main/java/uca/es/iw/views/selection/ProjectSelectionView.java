@@ -18,6 +18,8 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import uca.es.iw.data.Convocatoria;
 import uca.es.iw.data.Proyecto;
+import uca.es.iw.data.Recursos;
+import uca.es.iw.data.RecursosRepository;
 import uca.es.iw.services.ProyectoService;
 import uca.es.iw.services.RecursosService;
 import com.vaadin.flow.i18n.I18NProvider;
@@ -26,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 @Route(value = "project-selection", layout = uca.es.iw.views.MainLayout.class)
-@Menu(order = 11, icon = "line-awesome/svg/tasks-solid.svg")
+@Menu(order = 12, icon = "line-awesome/svg/tasks-solid.svg")
 @RolesAllowed({"CIO"})
 public class ProjectSelectionView extends VerticalLayout {
 
@@ -39,12 +41,13 @@ public class ProjectSelectionView extends VerticalLayout {
     private final Span recursosRestantes = new Span();
 
     private final Grid<Proyecto> projectGrid = new Grid<>(Proyecto.class, false);
+    private final RecursosRepository recursosRepository;
 
     private double totalFinanciacionRestante = 0.0;
     private int totalRecursosRestantes = 0;
     private final Map<Long, String> selectedStatuses = new HashMap<>();
 
-    public ProjectSelectionView(ProyectoService proyectoService, RecursosService recursosService, I18NProvider i18nProvider) {
+    public ProjectSelectionView(ProyectoService proyectoService, RecursosService recursosService, I18NProvider i18nProvider, RecursosRepository recursosRepository) {
         this.proyectoService = proyectoService;
         this.recursosService = recursosService;
         this.i18nProvider = i18nProvider;
@@ -73,6 +76,7 @@ public class ProjectSelectionView extends VerticalLayout {
         add(saveButton);
 
         loadProjects(null);
+        this.recursosRepository = recursosRepository;
     }
 
     private void configureProjectGrid() {
@@ -116,7 +120,7 @@ public class ProjectSelectionView extends VerticalLayout {
     private String convertToSpanish(String state) {
         switch (state) {
             case "Pending":
-                return "Pendiente";
+                return "En curso";
             case "Accepted":
                 return "Aceptado";
             case "Rejected":
@@ -127,15 +131,22 @@ public class ProjectSelectionView extends VerticalLayout {
     }
     private void loadProjects(Convocatoria convocatoria) {
         List<Proyecto> proyectos;
+
+
         if (convocatoria == null) {
-            proyectos = proyectoService.searchQualifiedProjects();
+            // No hacer nada si no hay convocatoria seleccionada
+            return;
         } else {
-            proyectos = proyectoService.searchProjectsByConvocatoria(convocatoria);
+            proyectos = proyectoService.searchProjectsByConvocatoriaAndEstado(convocatoria, "En curso");
+
+            Recursos recursos = recursosRepository.findByIdConvocatoria(convocatoria.getId()).orElse(new Recursos());
+
+            totalFinanciacionRestante = recursos.getPresupuestoRestante();
+            totalRecursosRestantes = recursos.getRecursosHumanosRestantes();
         }
         projectGrid.setItems(proyectos);
 
-        totalFinanciacionRestante = recursosService.getPresupuestoRestante();
-        totalRecursosRestantes = recursosService.getRecursosHumanosRestantes();
+
 
         updateStats();
     }
@@ -151,7 +162,7 @@ public class ProjectSelectionView extends VerticalLayout {
         } else if ("Rechazado".equals(newState) && "Aceptado".equals(oldState)) {
             totalFinanciacionRestante += project.getFinanciacionNecesaria();
             totalRecursosRestantes += project.getRecursosHumanosNecesarios();
-        } else if ("Pendiente".equals(newState) && "Aceptado".equals(oldState)) {
+        } else if ("En curso".equals(newState) && "Aceptado".equals(oldState)) {
             totalFinanciacionRestante += project.getFinanciacionNecesaria();
             totalRecursosRestantes += project.getRecursosHumanosNecesarios();
         }

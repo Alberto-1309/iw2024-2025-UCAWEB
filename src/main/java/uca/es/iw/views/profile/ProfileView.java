@@ -40,15 +40,19 @@ public class ProfileView extends VerticalLayout {
     private final TextField email = new TextField();
     private final TextField roles = new TextField();
     private final PasswordField password = new PasswordField();
+    private final PasswordField confirmPassword = new PasswordField();
+    private final PasswordField currentPassword = new PasswordField(); // Campo para la contraseña actual
     private final Image profilePicture = new Image();
     private final Upload imageUpload;
     private byte[] uploadedImage;
+
     @Autowired
     public ProfileView(AuthenticatedUser authenticatedUser, UserService userService, PasswordEncoder passwordEncoder, I18NProvider i18nProvider) {
         this.authenticatedUser = authenticatedUser;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.i18nProvider = i18nProvider;
+
         // Configurar campos iniciales
         Optional<User> maybeUser = authenticatedUser.get();
         if (maybeUser.isPresent()) {
@@ -67,6 +71,7 @@ public class ProfileView extends VerticalLayout {
             profilePicture.setWidth("150px");
             profilePicture.setHeight("150px");
         }
+
         // Configurar la carga de imágenes
         MemoryBuffer buffer = new MemoryBuffer();
         imageUpload = new Upload(buffer);
@@ -81,13 +86,28 @@ public class ProfileView extends VerticalLayout {
                 Notification.show(i18nProvider.getTranslation("profile.image_error", getLocale(), e.getMessage()));
             }
         });
+
         password.getElement().setAttribute("autocomplete", "new-password");
+        confirmPassword.getElement().setAttribute("autocomplete", "new-password");
+
         // Botón para guardar cambios
         Button saveButton = new Button(i18nProvider.getTranslation("profile.save_changes", getLocale()), event -> {
             if (!validarCampos(i18nProvider)) {
                 return;
             }
             maybeUser.ifPresent(user -> {
+                // Verificar la contraseña actual
+                if (!userService.confirmCurrentPassword(currentPassword.getValue(), user)) {
+                    Notification.show(i18nProvider.getTranslation("profile.invalid_current_password", getLocale()));
+                    return;
+                }
+
+                // Verificar que las contraseñas coinciden
+                if (!password.getValue().equals(confirmPassword.getValue())) {
+                    Notification.show(i18nProvider.getTranslation("profile.password_mismatch", getLocale()));
+                    return;
+                }
+
                 // Actualizar los datos del usuario
                 user.setName(fullName.getValue());
                 user.setUsername(username.getValue());
@@ -106,6 +126,7 @@ public class ProfileView extends VerticalLayout {
                 getUI().ifPresent(ui -> ui.getPage().reload());
             });
         });
+
         // Botón para eliminar datos personales
         Button deletePersonalDataButton = new Button(
                 i18nProvider.getTranslation("profile.delete_data", getLocale()),
@@ -119,32 +140,41 @@ public class ProfileView extends VerticalLayout {
                 )
         );
         deletePersonalDataButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
         // Etiquetas de los campos con traducción
         username.setLabel(i18nProvider.getTranslation("profile.username", getLocale()));
         fullName.setLabel(i18nProvider.getTranslation("profile.full_name", getLocale()));
         roles.setLabel(i18nProvider.getTranslation("profile.user_role", getLocale()));
         email.setLabel(i18nProvider.getTranslation("profile.email", getLocale()));
         password.setLabel(i18nProvider.getTranslation("profile.new_password", getLocale()));
+        confirmPassword.setLabel(i18nProvider.getTranslation("profile.confirm_new_password", getLocale())); // Etiqueta para confirmar contraseña
+        currentPassword.setLabel(i18nProvider.getTranslation("profile.current_password", getLocale())); // Etiqueta para la contraseña actual
+
         // Diseño
         setWidth("100%");
         setAlignItems(Alignment.CENTER);
         username.setWidth("100%");
         fullName.setWidth("100%");
         password.setWidth("100%");
+        confirmPassword.setWidth("100%");
+        currentPassword.setWidth("100%");
         roles.setWidth("100%");
         email.setWidth("100%");
-        add(username, fullName, email, password, roles, profilePicture, imageUpload, saveButton, deletePersonalDataButton);
+        add(username, fullName, email, password, confirmPassword, currentPassword, roles, profilePicture, imageUpload, saveButton, deletePersonalDataButton);
     }
+
     private boolean validarCampos(I18NProvider i18nProvider) {
-        if (username.getValue().isEmpty() || fullName.getValue().isEmpty()) {
+        if (username.getValue().isEmpty() || fullName.getValue().isEmpty() || currentPassword.getValue().isEmpty()) {
             Notification.show(i18nProvider.getTranslation("profile.invalid_fields", getLocale()));
             return false;
         }
         return true;
     }
+
     private String encriptarContraseña(String password) {
         return passwordEncoder.encode(password);
     }
+
     private void showConfirmationDialog(String message, Runnable onConfirm) {
         Dialog confirmationDialog = new Dialog();
         confirmationDialog.add(new H1(message));

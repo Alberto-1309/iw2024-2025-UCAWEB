@@ -43,7 +43,7 @@ public class ProyectoService {
         this.emailService = emailService;
     }
 
-    public Proyecto guardarProyecto(String titulo, String nombrecorto, byte[] memoria, String nombresolicitante, String correo, String unidad, String select, int importancia, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues, byte[] especificaciones, byte[] presupuesto, Convocatoria convocatoria) {
+    public Proyecto guardarProyecto(String titulo, String nombrecorto, byte[] memoria, String nombresolicitante, String correo, String unidad, String select, int importancia, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues, byte[] especificaciones, byte[] presupuesto, Long convocatoria) {
         validateProjectData(titulo, nombrecorto, memoria, nombresolicitante, correo, unidad, select, importancia, interesados, financiacion, alcance, fechaObjetivo, normativa, selectedValues);
         String estado = "PENDIENTE";
 
@@ -77,7 +77,7 @@ public class ProyectoService {
         proyecto.setCreadoId(currentUserId);
         proyecto.setCalificado(false);
         proyecto.setArchivado(false);
-        proyecto.setConvocatoria(convocatoria);
+        proyecto.setIdConvocatoria(convocatoria);
         proyecto.setAoe1(AOE1);
         proyecto.setAoe2(AOE2);
         proyecto.setAoe3(AOE3);
@@ -366,8 +366,8 @@ public class ProyectoService {
             case "Rechazado":
                 proyecto.setEstado("Rechazado");
                 break;
-            case "Pendiente":
-                proyecto.setEstado("Pendiente");
+            case "En curso":
+                proyecto.setEstado("En curso");
                 break;
             default:
                 throw new IllegalArgumentException("Estado inválido: " + newStatus);
@@ -378,12 +378,15 @@ public class ProyectoService {
     public Proyecto findById(long id) {
         return proyectoRepository.findById(id).orElseGet(Proyecto::new);
     }
+
+
     // Método para obtener la convocatoria activa
     public Convocatoria getConvocatoriaActual() {
         LocalDate hoy = LocalDate.now();
         return convocatoriaRepository.findByFechaAperturaBeforeAndFechaCierreAfter(hoy, hoy)
                 .orElseThrow(() -> new IllegalArgumentException("No hay convocatorias activas actualmente."));
     }
+
     private void sendProjectRequestEmail(Proyecto proyecto) {
         String subject = "¡Proyecto solicitado exitosamente!";
         String body = "Hola " + proyecto.getNombreSolicitante() + ",\n\n" +
@@ -394,9 +397,10 @@ public class ProyectoService {
 
         emailService.sendEmail(proyecto.getCorreoSolicitante(), subject, body);
     }
-    public List<Proyecto> searchProjectsByConvocatoria(Convocatoria convocatoria) {
-        return proyectoRepository.findByConvocatoria(convocatoria);  // Requiere un repositorio adecuado que implemente el filtro
+    public List<Proyecto> searchProjectsByConvocatoriaAndEstado(Convocatoria convocatoria, String estado) {
+        return proyectoRepository.findByIdConvocatoriaAndEstadoAndCalificadoTrue(convocatoria.getId(), estado);
     }
+
     public List<Convocatoria> getAllConvocatorias() {
         return convocatoriaRepository.findAll();
     }
