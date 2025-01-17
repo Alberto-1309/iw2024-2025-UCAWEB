@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import uca.es.iw.security.AuthenticatedUser;
 
 @Route(value = "new-proyect-form", layout = uca.es.iw.views.MainLayout.class)
 @Menu(order = 1, icon = "line-awesome/svg/user.svg")
@@ -48,11 +49,13 @@ public class NewProjectView extends Composite<VerticalLayout> {
     private byte[] especificacionesData;
     private byte[] presupuestoData;
     private final I18NProvider i18nProvider;
+    private final AuthenticatedUser authenticatedUser; // Agregado
 
 
-    public NewProjectView(ProyectoService proyectoService,  I18NProvider i18nProvider) {
+    public NewProjectView(ProyectoService proyectoService,  I18NProvider i18nProvider, AuthenticatedUser authenticatedUser) {
         this.proyectoService = proyectoService;
         this.i18nProvider = i18nProvider;
+        this.authenticatedUser = authenticatedUser;
         VerticalLayout layoutColumn2 = new VerticalLayout();
         TextField titulo = new TextField();
         TextField nombrecorto = new TextField();
@@ -105,6 +108,13 @@ public class NewProjectView extends Composite<VerticalLayout> {
         layoutColumn2.setWidth("100%");
         layoutColumn2.setMaxWidth("800px");
         layoutColumn2.setHeight("min-content");
+        authenticatedUser.get().ifPresent(user -> {
+            nombresolicitante.setValue(user.getName());
+            correo.setValue(user.getEmail());
+
+            nombresolicitante.setReadOnly(true);
+            correo.setReadOnly(true);
+        });
         titulo.setLabel(i18nProvider.getTranslation("new_project.title", getLocale()));
         titulo.setWidth("600px");
         nombrecorto.setLabel(i18nProvider.getTranslation("new_project.short_name", getLocale()));
@@ -194,22 +204,23 @@ public class NewProjectView extends Composite<VerticalLayout> {
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         saveButton.addClickListener(event -> {
-            //ProyectoService.SampleItem selectedItem = (ProyectoService.SampleItem) select.getValue(); // Realiza el casting aquí
-            saveProject(
-                    titulo.getValue(),
-                    nombrecorto.getValue(),
-                    nombresolicitante.getValue(),
-                    correo.getValue(),
-                    unidad.getValue(),
-                    select.getValue(),
-                    importancia.getValue().intValue(),
-                    interesados.getValue(),
-                    financiacion.getValue(),
-                    alcance.getValue(),
-                    fechaObjetivo.getValue(),
-                    normativa.getValue(),
-                    checkboxGroup.getValue()
-            );
+            authenticatedUser.get().ifPresent(user -> {
+                saveProject(
+                        titulo.getValue(),
+                        nombrecorto.getValue(),
+                        user.getName(),
+                        user.getEmail(),
+                        unidad.getValue(),
+                        select.getValue(),
+                        importancia.getValue().intValue(),
+                        interesados.getValue(),
+                        financiacion.getValue(),
+                        alcance.getValue(),
+                        fechaObjetivo.getValue(),
+                        normativa.getValue(),
+                        checkboxGroup.getValue()
+                );
+            });
         });
 
         getContent().add(layoutColumn2);
