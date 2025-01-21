@@ -1,6 +1,7 @@
 package uca.es.iw.views.avalar;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -75,8 +76,23 @@ public class PromotorView extends VerticalLayout {
         grid.addColumn(Proyecto::getEstado).setHeader(i18nProvider.getTranslation("promotor_view.estado", getLocale())).setAutoWidth(true);
         grid.addColumn(Proyecto::getFechaCreado).setHeader(i18nProvider.getTranslation("promotor_view.fecha_solicitud", getLocale())).setAutoWidth(true);
 
+        grid.addColumn(new ComponentRenderer<>(proyecto -> {
+            ComboBox<Integer> comboBox = new ComboBox<>();
+            comboBox.setItems(1, 2, 3, 4, 5); // Opciones del 1 al 5
+            comboBox.setValue(proyecto.getImportancia()); // Establecer valor actual (asegúrate de que exista el campo 'importancia' en Proyecto)
+
+            // Escuchar cambios en el valor seleccionado
+            comboBox.addValueChangeListener(event -> {
+                if (event.getValue() != null) {
+                    proyecto.setImportancia(event.getValue()); // Actualizar la importancia del proyecto
+                    proyectoRepository.save(proyecto); // Guardar el cambio en la base de datos
+                }
+            });
+            return comboBox;
+        })).setHeader(i18nProvider.getTranslation("promotor_view.importancia", getLocale())).setAutoWidth(true);
+
         // Columna de acciones (Avalar y No Avalar)
-        grid.addComponentColumn(this::createActionButtons).setHeader(i18nProvider.getTranslation("promotor_view.acciones", getLocale()));
+        grid.addComponentColumn(this::createActionButtons).setHeader(i18nProvider.getTranslation("promotor_view.acciones", getLocale())).setAutoWidth(true);
 
         // Opcional: puedes deshabilitar bordes
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
@@ -112,7 +128,20 @@ public class PromotorView extends VerticalLayout {
     }
 
     private HorizontalLayout createActionButtons(Proyecto proyecto) {
-        Button avalarButton = new Button(i18nProvider.getTranslation("promotor_view.avalar", getLocale()), event -> gestionarProyecto(proyecto, "En curso"));
+        Button avalarButton = new Button(
+                i18nProvider.getTranslation("promotor_view.avalar", getLocale()),
+                event -> {
+                    if (proyecto.getImportancia() == null) {
+                        Notification.show(
+                                i18nProvider.getTranslation("promotor_view.error.sin_importancia", getLocale()),
+                                3000,
+                                Notification.Position.TOP_CENTER
+                        );
+                    } else {
+                        gestionarProyecto(proyecto, "En curso");
+                    }
+                }
+        );
         Button rechazarButton = new Button(i18nProvider.getTranslation("promotor_view.no_avalar", getLocale()), event -> gestionarProyecto(proyecto, "Rechazado"));
 
         return new HorizontalLayout(avalarButton, rechazarButton);

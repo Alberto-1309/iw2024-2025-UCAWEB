@@ -61,7 +61,7 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
     private final TextField nombrecorto = new TextField();
     private final TextField nombresolicitante = new TextField();
     private final TextField correo = new TextField();
-    private final TextField unidad = new TextField();
+    //private final TextField unidad = new TextField();
     private final ComboBox<String> select = new ComboBox<>();
     private final NumberField importancia = new NumberField();
     private final TextField interesados = new TextField();
@@ -134,8 +134,8 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
         textMedium.getStyle().set("font-size", "var(--lumo-font-size-m)");
         correo.setLabel("Correo electrónico del solicitante: *");
         correo.setWidth("600px");
-        unidad.setLabel("Unidad del solicitante: *");
-        unidad.setWidth("600px");
+        //unidad.setLabel("Unidad del solicitante: *");
+        //unidad.setWidth("600px");
         h22.setText("Información del promotor");
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h22);
         h22.setWidth("max-content");
@@ -264,11 +264,11 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
                     id,
                     titulo.getValue(),
                     nombrecorto.getValue(),
-                    nombresolicitante.getValue(),
-                    correo.getValue(),
-                    unidad.getValue(),
+                    //nombresolicitante.getValue(),
+                    //correo.getValue(),
+                    //unidad.getValue(),
                     select.getValue(),
-                    importancia.getValue().intValue(),
+                    //importancia.getValue().intValue(),
                     interesados.getValue(),
                     financiacion.getValue(),
                     alcance.getValue(),
@@ -287,18 +287,18 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
         layoutColumn2.add(estadoActual);
         layoutColumn2.add(calificacion);
         layoutColumn2.add(fechaCreacion);
-        layoutColumn2.add(hr);
-        layoutColumn2.add(h2);
-        layoutColumn2.add(hr2);
-        layoutColumn2.add(nombresolicitante);
-        layoutColumn2.add(textMedium);
-        layoutColumn2.add(correo);
-        layoutColumn2.add(unidad);
+        //layoutColumn2.add(hr);
+        //layoutColumn2.add(h2);
+        //layoutColumn2.add(hr2);
+        //layoutColumn2.add(nombresolicitante);
+        //layoutColumn2.add(textMedium);
+        //layoutColumn2.add(correo);
+        //layoutColumn2.add(unidad);
         layoutColumn2.add(hr3);
         layoutColumn2.add(h22);
         layoutColumn2.add(hr4);
         layoutColumn2.add(select);
-        layoutColumn2.add(importancia);
+        //layoutColumn2.add(importancia);
         layoutColumn2.add(hr9);
         layoutColumn2.add(h24);
         layoutColumn2.add(hr10);
@@ -361,10 +361,10 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
             titulo.setValue(proyecto.getTitulo());
             nombrecorto.setValue(proyecto.getNombreCorto());
             //memoriaData = proyecto.getMemoria();
-            nombresolicitante.setValue(proyecto.getNombreSolicitante());
-            correo.setValue(proyecto.getCorreoSolicitante());
-            unidad.setValue(proyecto.getUnidadSolicitante());
-            importancia.setValue((double) proyecto.getImportancia());
+            //nombresolicitante.setValue(proyecto.getNombreSolicitante());
+            //correo.setValue(proyecto.getCorreoSolicitante());
+            //unidad.setValue(proyecto.getUnidadSolicitante());
+            //importancia.setValue((double) proyecto.getImportancia());
             select.setValue(proyecto.getPromotor());
             interesados.setValue(proyecto.getInteresados());
             financiacion.setValue(proyecto.getFinanciacion());
@@ -425,9 +425,9 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
         titulo.setReadOnly(!editable);
         nombrecorto.setReadOnly(!editable);
         memoria.setVisible(editable);
-        nombresolicitante.setReadOnly(!editable);
-        correo.setReadOnly(!editable);
-        unidad.setReadOnly(!editable);
+        //nombresolicitante.setReadOnly(!editable);
+        //correo.setReadOnly(!editable);
+        //unidad.setReadOnly(!editable);
         select.setReadOnly(!editable);
         importancia.setReadOnly(!editable);
         interesados.setReadOnly(!editable);
@@ -444,14 +444,14 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
 
 
 
-    private void saveProject(Long id, String titulo, String nombrecorto, String nombresolicitante, String correo, String unidad, String select, int importancia, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, Object checkboxGroup) {
+    private void saveProject(Long id, String titulo, String nombrecorto, String select, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, Object checkboxGroup) {
 
         List<String> checkboxGroupList = new ArrayList<>();
         checkboxGroupList.addAll(new ArrayList<>( (Set<String>) checkboxGroup ));
 
 
         try {
-            proyectoService.updateProject(id, titulo, nombrecorto, memoriaData, nombresolicitante, correo, unidad, select, importancia, interesados, financiacion, alcance, fechaObjetivo, normativa, checkboxGroupList, especificacionesData, presupuestoData);
+            proyectoService.updateProject(id, titulo, nombrecorto, memoriaData, select, interesados, financiacion, alcance, fechaObjetivo, normativa, checkboxGroupList, especificacionesData, presupuestoData);
             Notification.show("Proyecto actualizado con éxito.", 3000, Notification.Position.MIDDLE);
             UI.getCurrent().navigate("");
 
