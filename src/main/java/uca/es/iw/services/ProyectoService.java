@@ -43,8 +43,8 @@ public class ProyectoService {
         this.emailService = emailService;
     }
 
-    public Proyecto guardarProyecto(String titulo, String nombrecorto, byte[] memoria, String nombresolicitante, String correo, String unidad, String select, int importancia, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues, byte[] especificaciones, byte[] presupuesto, Long convocatoria) {
-        validateProjectData(titulo, nombrecorto, memoria, nombresolicitante, correo, unidad, select, importancia, interesados, financiacion, alcance, fechaObjetivo, normativa, selectedValues);
+    public Proyecto guardarProyecto(String titulo, String nombrecorto, byte[] memoria, String nombresolicitante, String correo, String select, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues, byte[] especificaciones, byte[] presupuesto, Long convocatoria) {
+        validateProjectData(titulo, nombrecorto, memoria, nombresolicitante, correo, select, interesados, financiacion, alcance, fechaObjetivo, normativa, selectedValues);
         String estado = "PENDIENTE";
 
         boolean AOE1 = selectedValues.contains("Innovar, rediseñar y atualizar nuestra oferta formativa para adaptarla a las necesidades sociales y económicas de nuestro entorno.");
@@ -65,9 +65,7 @@ public class ProyectoService {
         proyecto.setMemoria(memoria);
         proyecto.setNombreSolicitante(nombresolicitante);
         proyecto.setCorreoSolicitante(correo);
-        proyecto.setUnidadSolicitante(unidad);
         proyecto.setPromotor(select);
-        proyecto.setImportancia(importancia);
         proyecto.setInteresados(interesados);
         proyecto.setFinanciacion(financiacion);
         proyecto.setAlcance(alcance);
@@ -94,11 +92,11 @@ public class ProyectoService {
         return proyectoRepository.save(proyecto);
     }
 
-    public Proyecto updateProject (Long id, String titulo, String nombrecorto, byte[] memoria, String nombresolicitante, String correo, String unidad, String select, int importancia, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues, byte[] especificaciones, byte[] presupuesto){
+    public Proyecto updateProject (Long id, String titulo, String nombrecorto, byte[] memoria, String select, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues, byte[] especificaciones, byte[] presupuesto){
         Proyecto proyecto = proyectoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Proyecto no encontrado con id: " + id));
 
-        validateUpdateData(titulo, nombrecorto, memoria, nombresolicitante, correo, unidad, select, importancia, interesados, financiacion, alcance, fechaObjetivo, normativa, selectedValues);
+        validateUpdateData(titulo, nombrecorto, memoria, select, interesados, financiacion, alcance, fechaObjetivo, normativa, selectedValues);
 
         boolean AOE1 = selectedValues.contains("Innovar, rediseñar y atualizar nuestra oferta formativa para adaptarla a las necesidades sociales y económicas de nuestro entorno.");
         boolean AOE2 = selectedValues.contains("Conseguir los niveles más altos de calidad en nuestra oferta formativa propia y reglada.");
@@ -114,11 +112,8 @@ public class ProyectoService {
 
         proyecto.setTitulo(titulo);
         proyecto.setNombreCorto(nombrecorto);
-        proyecto.setNombreSolicitante(nombresolicitante);
-        proyecto.setCorreoSolicitante(correo);
-        proyecto.setUnidadSolicitante(unidad);
+        //proyecto.setUnidadSolicitante(unidad);
         proyecto.setPromotor(select);
-        proyecto.setImportancia(importancia);
         proyecto.setInteresados(interesados);
         proyecto.setFinanciacion(financiacion);
         proyecto.setAlcance(alcance);
@@ -151,8 +146,8 @@ public class ProyectoService {
         proyectoRepository.save(proyecto);
     }
 
-    private void validateProjectData(String titulo, String nombrecorto, byte[] memoria, String nombresolicitante, String correo, String unidad, String select, int importancia, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues) {
-        if (titulo.isEmpty() || nombrecorto.isEmpty() || memoria.length == 0 || nombresolicitante.isEmpty() || correo.isEmpty() || unidad.isEmpty() || select.isEmpty() || importancia <= 0 || interesados.isEmpty() || financiacion == 0 || alcance.isEmpty() || fechaObjetivo == null || normativa.isEmpty()) {
+    private void validateProjectData(String titulo, String nombrecorto, byte[] memoria, String nombresolicitante, String correo, String select, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues) {
+        if (titulo.isEmpty() || nombrecorto.isEmpty() || memoria.length == 0 || nombresolicitante.isEmpty() || correo.isEmpty() || select.isEmpty() || interesados.isEmpty() || financiacion == 0 || alcance.isEmpty() || fechaObjetivo == null || normativa.isEmpty()) {
             throw new IllegalArgumentException("Por favor, complete todos los campos obligatorios marcados con asterisco.");
         }
         if (selectedValues.isEmpty()) {
@@ -160,9 +155,6 @@ public class ProyectoService {
         }
         if (!correo.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
             throw new IllegalArgumentException("El correo electrónico no tiene un formato válido.");
-        }
-        if (importancia < 0 || importancia > 5) {
-            throw new IllegalArgumentException("La importancia debe estar entre 0 y 5.");
         }
         if (financiacion < 0) {
             throw new IllegalArgumentException("La financiación no puede ser negativa.");
@@ -172,18 +164,12 @@ public class ProyectoService {
         }
     }
 
-    private void validateUpdateData(String titulo, String nombrecorto, byte[] memoria, String nombresolicitante, String correo, String unidad, String select, int importancia, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues) {
-        if (titulo.isEmpty() || nombrecorto.isEmpty() || nombresolicitante.isEmpty() || correo.isEmpty() || unidad.isEmpty() || select.isEmpty() || importancia == 0 || interesados.isEmpty() || financiacion == 0 || alcance.isEmpty() || fechaObjetivo == null || normativa.isEmpty()) {
+    private void validateUpdateData(String titulo, String nombrecorto, byte[] memoria, String select, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues) {
+        if (titulo.isEmpty() || nombrecorto.isEmpty() || select.isEmpty() || interesados.isEmpty() || financiacion == 0 || alcance.isEmpty() || fechaObjetivo == null || normativa.isEmpty()) {
             throw new IllegalArgumentException("Por favor, complete todos los campos obligatorios marcados con asterisco.");
         }
         if (selectedValues.isEmpty()) {
             throw new IllegalArgumentException("Debe seleccionar al menos uno de los objetivos estratégicos.");
-        }
-        if (!correo.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            throw new IllegalArgumentException("El correo electrónico no tiene un formato válido.");
-        }
-        if (importancia < 0 || importancia > 5) {
-            throw new IllegalArgumentException("La importancia debe estar entre 0 y 5.");
         }
         if (financiacion < 0) {
             throw new IllegalArgumentException("La financiación no puede ser negativa.");

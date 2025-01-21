@@ -115,14 +115,14 @@ public class NewProjectView extends Composite<VerticalLayout> {
             nombresolicitante.setReadOnly(true);
             correo.setReadOnly(true);
         });
-        titulo.setLabel(i18nProvider.getTranslation("new_project.title", getLocale()));
+        titulo.setLabel(i18nProvider.getTranslation("new_project.project_name", getLocale()));
         titulo.setWidth("600px");
         nombrecorto.setLabel(i18nProvider.getTranslation("new_project.short_name", getLocale()));
         nombrecorto.setWidth("600px");
         textSmall11.setText(i18nProvider.getTranslation("new_project.project_memory", getLocale()));
         textSmall11.setWidth("100%");
         textSmall11.getStyle().set("font-size", "var(--lumo-font-size-xs)");
-        h2.setText(i18nProvider.getTranslation("new_project.requester_info", getLocale()));
+        h2.setText(i18nProvider.getTranslation("new_project.project_name", getLocale()));
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h2);
         h2.setWidth("max-content");
         nombresolicitante.setLabel(i18nProvider.getTranslation("new_project.requester_name", getLocale()));
@@ -210,9 +210,9 @@ public class NewProjectView extends Composite<VerticalLayout> {
                         nombrecorto.getValue(),
                         user.getName(),
                         user.getEmail(),
-                        unidad.getValue(),
+                        //unidad.getValue(),
                         select.getValue(),
-                        importancia.getValue().intValue(),
+                        //importancia.getValue().intValue(),
                         interesados.getValue(),
                         financiacion.getValue(),
                         alcance.getValue(),
@@ -228,18 +228,18 @@ public class NewProjectView extends Composite<VerticalLayout> {
         layoutColumn2.add(nombrecorto);
         layoutColumn2.add(textSmall11);
         layoutColumn2.add(memoria);
-        layoutColumn2.add(hr);
-        layoutColumn2.add(h2);
-        layoutColumn2.add(hr2);
-        layoutColumn2.add(nombresolicitante);
-        layoutColumn2.add(textMedium);
-        layoutColumn2.add(correo);
-        layoutColumn2.add(unidad);
+        //layoutColumn2.add(hr);
+        //layoutColumn2.add(h2);
+        //layoutColumn2.add(hr2);
+        //layoutColumn2.add(nombresolicitante);
+        //layoutColumn2.add(textMedium);
+        //layoutColumn2.add(correo);
+        //layoutColumn2.add(unidad);
         layoutColumn2.add(hr3);
         layoutColumn2.add(h22);
         layoutColumn2.add(hr4);
         layoutColumn2.add(select);
-        layoutColumn2.add(importancia);
+        //layoutColumn2.add(importancia);
         layoutColumn2.add(hr9);
         layoutColumn2.add(h24);
         layoutColumn2.add(hr10);
@@ -270,7 +270,7 @@ public class NewProjectView extends Composite<VerticalLayout> {
 
     }
 
-    private void saveProject(String titulo, String nombrecorto, String nombresolicitante, String correo, String unidad, String select, int importancia, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, Object checkboxGroup) {
+    private void saveProject(String titulo, String nombrecorto, String nombresolicitante, String correo, String select, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, Object checkboxGroup) {
 
         List<String> checkboxGroupList = new ArrayList<>(new ArrayList<>((Set<String>) checkboxGroup));
 
@@ -284,9 +284,8 @@ public class NewProjectView extends Composite<VerticalLayout> {
                     memoriaData,
                     nombresolicitante,
                     correo,
-                    unidad,
                     select,
-                    importancia,
+                    //importancia,
                     interesados,
                     financiacion,
                     alcance,

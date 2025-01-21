@@ -27,13 +27,13 @@ public class Proyecto {
     @Column(name = "correo_solicitante", nullable = false, length = 100)
     private String correoSolicitante;
 
-    @Column(name = "unidad_solicitante", nullable = false, length = 100)
+    @Column(name = "unidad_solicitante", nullable = true, length = 100)
     private String unidadSolicitante;
 
     @Column(name = "promotor", nullable = false, length = 60)
     private String promotor;
 
-    @Column(name = "importancia", nullable = false)
+    @Column(name = "importancia", nullable = true)
     private Integer importancia;
 
     @Column(name = "interesados", nullable = false, columnDefinition = "TEXT")
