@@ -382,9 +382,11 @@ public class ProyectoService {
 
         emailService.sendEmail(proyecto.getCorreoSolicitante(), subject, body);
     }
-    public List<Proyecto> searchProjectsByConvocatoriaAndEstado(Convocatoria convocatoria, String estado) {
-        return proyectoRepository.findByIdConvocatoriaAndEstadoAndCalificadoTrue(convocatoria.getId(), estado);
+    public List<Proyecto> searchProjectsByConvocatoriaAndEstado(Convocatoria convocatoria) {
+        return proyectoRepository.findByIdConvocatoriaAndCalificadoTrue(convocatoria.getId());
     }
+
+
 
     public List<Convocatoria> getAllConvocatorias() {
         return convocatoriaRepository.findAll();

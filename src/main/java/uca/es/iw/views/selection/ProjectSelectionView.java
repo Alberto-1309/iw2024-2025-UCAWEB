@@ -137,7 +137,7 @@ public class ProjectSelectionView extends VerticalLayout {
             // No hacer nada si no hay convocatoria seleccionada
             return;
         } else {
-            proyectos = proyectoService.searchProjectsByConvocatoriaAndEstado(convocatoria, "En curso");
+            proyectos = proyectoService.searchProjectsByConvocatoriaAndEstado(convocatoria);
 
             Recursos recursos = recursosRepository.findByIdConvocatoria(convocatoria.getId()).orElse(new Recursos());
 

@@ -28,7 +28,7 @@ public interface ProyectoRepository extends JpaRepository<Proyecto, Long>, JpaSp
 
     List<Proyecto> findByCreadoId(Long creadoId);
 
-    List<Proyecto> findByIdConvocatoria(Long idConvocatoria);
+    List<Proyecto> findByIdConvocatoriaAndCalificadoTrue(Long idConvocatoria);
 
     List<Proyecto> findByIdConvocatoriaAndEstado(Long idConvocatoria, String estado);
 

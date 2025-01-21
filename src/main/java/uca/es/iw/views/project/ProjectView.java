@@ -61,7 +61,6 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
     private final TextField nombrecorto = new TextField();
     private final TextField nombresolicitante = new TextField();
     private final TextField correo = new TextField();
-    //private final TextField unidad = new TextField();
     private final ComboBox<String> select = new ComboBox<>();
     private final NumberField importancia = new NumberField();
     private final TextField interesados = new TextField();
