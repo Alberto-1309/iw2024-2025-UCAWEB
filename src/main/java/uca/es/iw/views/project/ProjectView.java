@@ -83,9 +83,7 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
 
         VerticalLayout layoutColumn2 = new VerticalLayout();
         Paragraph textSmall11 = new Paragraph();
-        Hr hr = new Hr();
         H2 h2 = new H2();
-        Hr hr2 = new Hr();
         Paragraph textMedium = new Paragraph();
         Hr hr3 = new Hr();
         H2 h22 = new H2();
@@ -134,8 +132,6 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
         textMedium.getStyle().set("font-size", "var(--lumo-font-size-m)");
         correo.setLabel("Correo electrónico del solicitante: *");
         correo.setWidth("600px");
-        //unidad.setLabel("Unidad del solicitante: *");
-        //unidad.setWidth("600px");
         h22.setText("Información del promotor");
         layoutColumn2.setAlignSelf(FlexComponent.Alignment.CENTER, h22);
         h22.setWidth("max-content");
@@ -264,11 +260,7 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
                     id,
                     titulo.getValue(),
                     nombrecorto.getValue(),
-                    //nombresolicitante.getValue(),
-                    //correo.getValue(),
-                    //unidad.getValue(),
                     select.getValue(),
-                    //importancia.getValue().intValue(),
                     interesados.getValue(),
                     financiacion.getValue(),
                     alcance.getValue(),
@@ -287,18 +279,10 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
         layoutColumn2.add(estadoActual);
         layoutColumn2.add(calificacion);
         layoutColumn2.add(fechaCreacion);
-        //layoutColumn2.add(hr);
-        //layoutColumn2.add(h2);
-        //layoutColumn2.add(hr2);
-        //layoutColumn2.add(nombresolicitante);
-        //layoutColumn2.add(textMedium);
-        //layoutColumn2.add(correo);
-        //layoutColumn2.add(unidad);
         layoutColumn2.add(hr3);
         layoutColumn2.add(h22);
         layoutColumn2.add(hr4);
         layoutColumn2.add(select);
-        //layoutColumn2.add(importancia);
         layoutColumn2.add(hr9);
         layoutColumn2.add(h24);
         layoutColumn2.add(hr10);
@@ -360,19 +344,12 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
             id = proyecto.getId();
             titulo.setValue(proyecto.getTitulo());
             nombrecorto.setValue(proyecto.getNombreCorto());
-            //memoriaData = proyecto.getMemoria();
-            //nombresolicitante.setValue(proyecto.getNombreSolicitante());
-            //correo.setValue(proyecto.getCorreoSolicitante());
-            //unidad.setValue(proyecto.getUnidadSolicitante());
-            //importancia.setValue((double) proyecto.getImportancia());
             select.setValue(proyecto.getPromotor());
             interesados.setValue(proyecto.getInteresados());
             financiacion.setValue(proyecto.getFinanciacion());
             alcance.setValue(proyecto.getAlcance());
             fechaObjetivo.setValue(proyecto.getFechaObjetivo());
             normativa.setValue(proyecto.getNormativa());
-            //especificacionesData = proyecto.getEspecificaciones();
-            //presupuestoData = proyecto.getPresupuestos();
             estadoActual.setText("Estado actual: " + proyecto.getEstado());
             if (proyecto.getCalFinal() == null) {
                 calificacion.setText("Calificación: No calificado");
@@ -425,9 +402,6 @@ public class ProjectView extends Composite<VerticalLayout> implements BeforeEnte
         titulo.setReadOnly(!editable);
         nombrecorto.setReadOnly(!editable);
         memoria.setVisible(editable);
-        //nombresolicitante.setReadOnly(!editable);
-        //correo.setReadOnly(!editable);
-        //unidad.setReadOnly(!editable);
         select.setReadOnly(!editable);
         importancia.setReadOnly(!editable);
         interesados.setReadOnly(!editable);
