@@ -49,7 +49,7 @@ public class NewProjectView extends Composite<VerticalLayout> {
     private byte[] especificacionesData;
     private byte[] presupuestoData;
     private final I18NProvider i18nProvider;
-    private final AuthenticatedUser authenticatedUser; // Agregado
+    private final AuthenticatedUser authenticatedUser;
 
 
     public NewProjectView(ProyectoService proyectoService,  I18NProvider i18nProvider, AuthenticatedUser authenticatedUser) {
@@ -61,9 +61,7 @@ public class NewProjectView extends Composite<VerticalLayout> {
         TextField nombrecorto = new TextField();
         Upload memoria = getUpload(data -> memoriaData = data);
         Paragraph textSmall11 = new Paragraph();
-        Hr hr = new Hr();
         H2 h2 = new H2();
-        Hr hr2 = new Hr();
         TextField nombresolicitante = new TextField();
         Paragraph textMedium = new Paragraph();
         TextField correo = new TextField();
@@ -228,18 +226,10 @@ public class NewProjectView extends Composite<VerticalLayout> {
         layoutColumn2.add(nombrecorto);
         layoutColumn2.add(textSmall11);
         layoutColumn2.add(memoria);
-        //layoutColumn2.add(hr);
-        //layoutColumn2.add(h2);
-        //layoutColumn2.add(hr2);
-        //layoutColumn2.add(nombresolicitante);
-        //layoutColumn2.add(textMedium);
-        //layoutColumn2.add(correo);
-        //layoutColumn2.add(unidad);
         layoutColumn2.add(hr3);
         layoutColumn2.add(h22);
         layoutColumn2.add(hr4);
         layoutColumn2.add(select);
-        //layoutColumn2.add(importancia);
         layoutColumn2.add(hr9);
         layoutColumn2.add(h24);
         layoutColumn2.add(hr10);
@@ -285,7 +275,6 @@ public class NewProjectView extends Composite<VerticalLayout> {
                     nombresolicitante,
                     correo,
                     select,
-                    //importancia,
                     interesados,
                     financiacion,
                     alcance,

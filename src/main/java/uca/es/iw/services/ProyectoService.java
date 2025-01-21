@@ -96,7 +96,7 @@ public class ProyectoService {
         Proyecto proyecto = proyectoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Proyecto no encontrado con id: " + id));
 
-        validateUpdateData(titulo, nombrecorto, memoria, select, interesados, financiacion, alcance, fechaObjetivo, normativa, selectedValues);
+        validateUpdateData(titulo, nombrecorto, select, interesados, financiacion, alcance, fechaObjetivo, normativa, selectedValues);
 
         boolean AOE1 = selectedValues.contains("Innovar, rediseñar y atualizar nuestra oferta formativa para adaptarla a las necesidades sociales y económicas de nuestro entorno.");
         boolean AOE2 = selectedValues.contains("Conseguir los niveles más altos de calidad en nuestra oferta formativa propia y reglada.");
@@ -112,7 +112,6 @@ public class ProyectoService {
 
         proyecto.setTitulo(titulo);
         proyecto.setNombreCorto(nombrecorto);
-        //proyecto.setUnidadSolicitante(unidad);
         proyecto.setPromotor(select);
         proyecto.setInteresados(interesados);
         proyecto.setFinanciacion(financiacion);
@@ -164,7 +163,7 @@ public class ProyectoService {
         }
     }
 
-    private void validateUpdateData(String titulo, String nombrecorto, byte[] memoria, String select, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues) {
+    private void validateUpdateData(String titulo, String nombrecorto, String select, String interesados, Double financiacion, String alcance, LocalDate fechaObjetivo, String normativa, List<String> selectedValues) {
         if (titulo.isEmpty() || nombrecorto.isEmpty() || select.isEmpty() || interesados.isEmpty() || financiacion == 0 || alcance.isEmpty() || fechaObjetivo == null || normativa.isEmpty()) {
             throw new IllegalArgumentException("Por favor, complete todos los campos obligatorios marcados con asterisco.");
         }
